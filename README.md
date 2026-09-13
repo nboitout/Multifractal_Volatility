@@ -2,7 +2,7 @@
 
 Complete source for Nicolas Boitout's Chapter 1 research laboratory, prepared for a new GitHub repository and deployment on Vercel.
 
-The application uses plain HTML, CSS and JavaScript modules. There are no framework dependencies, no compilation step and no API keys in this version. The four application files and the numerical checks are identical to the published source at commit `8c7dff5e9eea7de3302139741368deed7bd8b131`. This handover adds Vercel configuration, npm convenience commands and documentation. The previous host's project identifiers, credentials and Git history are not included.
+The application uses plain HTML, CSS and JavaScript modules. There are no framework dependencies, no compilation step and no API keys in the deployed application. The offline data scripts under `scripts/` are separate: they read credentials from a local `.env` and never ship to `dist`. The four application files and the numerical checks are identical to the published source at commit `8c7dff5e9eea7de3302139741368deed7bd8b131`. This handover adds Vercel configuration, npm convenience commands and documentation. The previous host's project identifiers, credentials and Git history are not included.
 
 ## Files
 
@@ -14,9 +14,12 @@ The application uses plain HTML, CSS and JavaScript modules. There are no framew
 | `dist/model.mjs` | Seeded cascade simulation, statistics, autocorrelations and scaling calculations |
 | `verify.mjs` | Numerical checks and original-table transcription checks |
 | `vercel.json` | Static deployment configuration |
-| `package.json` | Optional `npm test` and `npm run check` commands; no dependencies |
+| `package.json` | `npm test` and `npm run check`; `pg` is a devDependency used only by the offline scripts |
+| `scripts/schema.sql` | Research-store schema for five-minute bars |
+| `scripts/ingest.mjs` | Offline backfill from Polygon into the research store |
+| `.env.example` | Template for the credentials the scripts read |
 | `docs/RESEARCH_NOTES.md` | Research provenance and numerical definitions |
-| `docs/POLYGON_INTEGRATION.md` | Proposed next stage for real market data; not implemented |
+| `docs/POLYGON_INTEGRATION.md` | Market data design: architecture, corrections and staging |
 
 The files in `dist` are the editable application source, not generated bundles. Keep them under version control.
 
@@ -77,7 +80,25 @@ Check the new deployment's access settings before sharing it: access restriction
 
 The simulator illustrates the chapter's finite multiplicative-cascade framework. Its implementation choices are documented on the page. It is not calibrated to the original Alcatel dataset. The original Table 1.4 is a separate historical transcription.
 
-Keep that distinction when extending the lab. Polygon market data would be a new empirical experiment unless it matches the original instrument, observation period and preprocessing. See [the integration notes](docs/POLYGON_INTEGRATION.md).
+Keep that distinction when extending the lab. Market data is a new empirical experiment, not a reproduction: it matches neither the original instrument nor its observation period or preprocessing. See [the integration notes](docs/POLYGON_INTEGRATION.md).
+
+## Market data
+
+The research store holds five-minute bars and is populated offline. It is not
+part of the deployed application and the browser never queries it.
+
+```sh
+cp .env.example .env      # then fill in POLYGON_API_KEY and DATABASE_URL
+npm install               # pulls pg, used only by the scripts
+npm run ingest:init       # create the schema and register the assets
+npm run ingest            # backfill; resumable, roughly 75 rate-limited requests
+npm run ingest:status     # what has been ingested so far
+```
+
+The backfill records progress per asset-month and skips completed months, so it
+can be interrupted and restarted at no cost. Overnight, weekend and holiday
+boundaries are flagged at load time as `bar.gap_min`; excluding them is a query
+filter, and doing so is required before any estimate is reported.
 
 ## Validation
 

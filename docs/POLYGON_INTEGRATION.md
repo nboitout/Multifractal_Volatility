@@ -1,44 +1,194 @@
-# Adding Polygon market data
+# Market data integration
 
-This is a handover plan for the next development stage. The current package is a complete simulator and does not contain a market-data endpoint or a live API integration.
+Design for extending the lab from a pure simulator to a lab that measures the
+chapter's quantities on real series. Supersedes the earlier handover plan, which
+proposed a server-side market-data endpoint over daily bars.
 
-## Provider and historical coverage
+Decisions recorded here were settled in review; the open questions are listed at
+the end. Numbers quoted from experiments are single-realization illustrations
+unless stated otherwise, and are order-of-magnitude arguments, not estimates.
 
-Polygon.io was renamed Massive.com in October 2025. Use the current documentation and the `https://api.massive.com` base for a new integration; the rebranding notice explains the transition and existing-key compatibility. [Provider announcement](https://massive.com/blog/polygon-is-now-massive)
+## What the lab is missing
 
-The stock custom-bars documentation currently lists its full historical coverage from 10 September 2003. This does not cover the chapter's Alcatel sample from 1991 through 2001; instrument and exchange coverage also need to be checked. An experiment on a supported instrument and newer period should be labelled accordingly. The original study still requires its historical source data. [Stock custom-bars documentation](https://massive.com/docs/rest/stocks/aggregates/custom-bars)
+The `Original chapter` tab shows Table 1.4's reported fractional-dependence
+estimates `d(q)` as static numbers. The simulator tab computes structure-function
+exponents `zeta(q)`. These are different quantities, so the two halves of the
+application never meet, and adding market data alone would not connect them: the
+result would be the same four charts computed on a different series.
 
-## Proposed implementation
+What connects them is implementing the semiparametric long-memory estimator, so
+that a measured `d(q)` curve can be drawn on the same axes as the reported one.
+That is the point of this work; the data pipeline exists to serve it.
 
-Add a Vercel server-side endpoint such as `/api/market-data`. The browser calls that endpoint with a ticker and date range. The endpoint uses a server environment variable named `POLYGON_API_KEY`, fetches the provider data, and returns only the validated observations and provenance to the browser. The variable name can remain `POLYGON_API_KEY` even when the base URL is Massive.
+## Architecture
 
-Keep the key out of `dist`, client-side JavaScript, browser requests to the provider, and Git. Set it in the Vercel project's environment variables when the server endpoint is implemented. Restrict the endpoint's accepted instruments, dates and query size; add caching and request limits so visitors cannot exhaust the provider quota. Keep provider URLs fixed or validate pagination URLs against the expected provider host.
+Three tiers, deliberately separated:
 
-For a framework-free Vercel project, the future function belongs in a root-level `api` directory, outside `dist`. Do not place secrets or server source among public static files. Revisit installation and runtime configuration when adding dependencies. [Vercel Functions documentation](https://vercel.com/docs/functions)
+1. **Research store** — Neon Postgres. Five-minute bars for the intraday assets.
+   Written once by `scripts/ingest.mjs`. Never queried by the browser.
+2. **Batch derivation** — an offline job that reads the store, applies the
+   corrections below, and writes small precomputed curves (structure functions,
+   autocorrelations, `d(q)` across the sixteen chapter moment orders).
+3. **Static dashboard** — `dist/` continues to deploy as static files with no
+   build step. It loads the precomputed curves as JSON, a few tens of kilobytes
+   per asset, and keeps computing the *simulator* live in the browser.
 
-## Data to request
+This keeps the Vercel deployment static, keeps Neon's cold starts off the
+interactive path, and enforces the simulated/measured separation structurally.
 
-Begin with daily OHLCV bars. The current custom-bars endpoint has the form `/v2/aggs/ticker/{ticker}/range/1/day/{from}/{to}`. Its response provides close `c`, volume `v`, and millisecond timestamp `t`. Request ascending order, follow pagination, and record the chosen split-adjustment setting. That setting describes split adjustment and should not be treated as a total-return dividend adjustment. [Endpoint specification](https://massive.com/docs/rest/stocks/aggregates/custom-bars)
+`dist/model.mjs` stays byte-identical so its existing invariants keep holding and
+`node verify.mjs` keeps passing. New numerics go in new modules.
 
-## Reuse the existing analysis
+### Security
 
-1. Normalize observations into sorted, unique trading dates with positive close prices. Preserve missing-data information instead of silently filling gaps.
-2. Convert closes to log returns in percentage points: `100 * Math.log(close[t] / close[t - 1])`. The factor of 100 matches the simulator's units.
-3. Align each return with its ending date and the corresponding volume observation.
-4. Reuse `stats`, `aggregate`, `acf`, `crossScale` and `scaling` from `dist/model.mjs`.
-5. Refactor `dist/app.mjs` to select a dataset rather than always calling `simulate`. Keep simulation parameters active only for simulated data.
-6. Display the provider, instrument, date range, adjustment convention, observation count and data gaps alongside measured results.
+No API key or connection string reaches the browser or the repository. Both live
+in a local `.env` (gitignored) and are read only by the offline scripts. Pagination
+URLs returned by the provider are validated against the expected host before being
+followed. There is no server-side market-data endpoint and no key in `dist/`.
 
-For empirical daily data, horizons should mean trading observations, not calendar days. Compute moments over the same definitions and scale ranges as the chapter when making comparisons. The original volume transformation must be checked against the source before calculating power transforms; raw volume and log volume are not interchangeable.
+## Instruments
 
-The current `Original chapter` view displays fixed reported estimates of fractional dependence `d(q)`. It does not implement the chapter's semiparametric estimator. A live-data reproduction of that table requires a separate implementation and validation; neither the autocorrelation function nor the structure-function slope `zeta(q)` should be relabelled as `d(q)`.
+| asset | source | resolution | volume |
+| --- | --- | --- | --- |
+| equity (provisional, see open questions) | Polygon stocks | 5-minute + daily | yes |
+| `X:BTCUSD` | Polygon crypto | 5-minute + daily | yes |
+| `C:EURUSD` | Polygon forex | 5-minute | no |
+| `DGS10` | FRED | daily only | n/a |
+| `DCOILBRENTEU` | FRED | daily only | n/a |
 
-## Acceptance criteria for that later stage
+Two of the five have no intraday equivalent: they are FRED daily series and
+Polygon carries no commodity futures. The manifest therefore carries resolution
+and volume availability per asset, and views degrade where a series lacks them.
 
-- Simulated data, new measured data and the original reported results remain clearly labelled.
-- The seeded simulator and its zero-intermittency Gaussian limit remain unchanged.
-- No API key appears in downloaded frontend assets or browser-visible responses.
-- Empty data, unavailable history, invalid inputs and provider errors produce clear states without falling back to fabricated observations.
-- Historical-bar normalization and units are tested with a small known fixture before comparing the empirical charts.
+Polygon's free tiers are per asset class — stocks, crypto and forex are separate
+free subscriptions. FRED is free with no lookback limit, so the two daily-only
+series need no Polygon entitlement at all.
 
-Documentation checked on 13 September 2026. Access to the provider account, original Alcatel data and Vercel project will determine the available instruments and periods.
+`DGS10` is a yield, not a price. The `100 * log(P_t / P_{t-1})` pipeline assumes a
+price, so its treatment must be an explicit, recorded choice (daily yield
+differences in basis points, or log-changes labelled as such) rather than a
+default falling out of shared code. FRED marks holidays with `.`, which must not
+parse as zero.
+
+## Why five-minute bars
+
+Measured against a two-year free-tier window:
+
+| | 30-minute | 5-minute | 1-minute |
+| --- | --- | --- | --- |
+| rows, three assets | 67 K | 400 K | 2.0 M |
+| Neon storage | 6 MB | 38 MB | 190–260 MB |
+| octaves below the daily scale | 3.7 | 6.3 | 8.6 |
+| equity sample / octaves | 6,552 / 8 | 39,312 / 11 | 196,560 / 13 |
+
+Five minutes is the canonical sampling frequency in the realized-volatility
+literature for the microstructure-noise-versus-frequency tradeoff, so it needs no
+special defence. Thirty minutes would gain only two octaves over the daily series
+already in hand. One minute costs five times the storage and sits closer to the
+bandwidth problem described below.
+
+Stitched onto the ten-year daily series, five-minute bars span roughly five
+minutes to 128 days: about fifteen octaves.
+
+## Corrections that must be applied before estimation
+
+### Overnight and weekend gaps
+
+The bar spanning a market close to the next open is not a five-minute return; it
+carries a full session of variance, roughly twenty standard deviations on the
+intraday scale, once per session. On a cascade rescaled to intraday magnitude, a
+single such outlier per session drives `d(3)` from .456 to .031 and `d(4)`
+negative, while `d(1)`, `zeta(1)` and `zeta(2)` barely move. The corruption is
+invisible in every chart the lab currently draws.
+
+`bar.gap_min` is derived at load time for exactly this reason, so excluding these
+observations is the query filter `where gap_min = resolution_min` rather than a
+reprocessing step. It generalises to halts, holidays, early closes and the FX
+Sunday open. Verified against a DST boundary: sessions and buckets remain correct
+when the UTC time of the open shifts.
+
+### Intraday seasonality
+
+The U-shaped diurnal volatility pattern biases the estimators downward and puts a
+deterministic harmonic in the periodogram. Deseasonalise by the time-of-day mean
+absolute return before estimating; `bar.bucket` holds the time-of-day index.
+
+The harmonic sits at Fourier index equal to the **number of sessions**, which is
+independent of bar size, while the GPH regression band is `m`. So coarsening the
+bars shrinks `m` and pushes the contamination further outside the band:
+
+| sample | harmonic index | `m = n^0.5` | verdict |
+| --- | --- | --- | --- |
+| two years, 5-minute | 504 | 198 | outside the band |
+| two years, 1-minute | 504 | 443 | outside by 14 per cent |
+| any span, `m = n^0.6` | 504 | 571+ | inside — contaminated |
+
+Use `m = n^0.5`, and deseasonalise regardless. Note that deseasonalisation is not
+free: a time-of-day profile estimated from few sessions is itself noisy.
+
+### Splicing daily history to the Polygon tail
+
+The ten-year daily history and the Polygon tail do not share an adjustment
+convention. Any disagreement lands as one spurious return on the join date. A
+single 30 per cent join error collapses `d(2)` from .353 to .052 and `d(4)` to
+zero; after overlap rescaling to within 0.5 per cent, the estimates are
+indistinguishable from clean.
+
+So: never butt-join. Request an overlap, rescale the older segment by the median
+price ratio across it, record the ratio as provenance, and fail loudly if the
+residual per-day discrepancy exceeds tolerance — serving history-only rather than
+publishing a corrupted series. Volume needs the same treatment, since sources
+differ on consolidated versus primary-exchange tape.
+
+## Code changes required
+
+`scaling()` hardcodes `[1,2,4,8,16,32,64]`, `acf()` defaults to 64 lags and
+`horizon` is validated against `[1,5,20,64]`. All three cap at 64, so intraday
+data would span five minutes to about five hours — worse coverage than the daily
+series. Since `model.mjs` is frozen, the extended versions live in the new
+modules, targeting scales up to about 2048 bars.
+
+Planned modules:
+
+- `dist/empirical.mjs` — bars to log returns, volume transforms, gap reporting.
+- `dist/longmemory.mjs` — periodogram, GPH, local Whittle, `d(q)` curve.
+- `dist/app.mjs` — a dataset abstraction replacing the direct `simulate()` call,
+  and a third state on the data badge: SIMULATED / MEASURED / ORIGINAL RESULTS.
+
+The estimator only needs the periodogram at the `m` lowest Fourier frequencies,
+which is `O(n*m)` and needs no FFT. A prototype recovers known `d` within about
+one standard error and, run on the uncalibrated cascade, reproduces the shape of
+Table 1.4 — levels near .43–.47 at low `q`, decaying with `q` — without fitting.
+Report a confidence band rather than R-squared: log-periodogram regression errors
+are log-chi-squared, so R-squared runs .05–.32 even on good estimates and would
+mislead if displayed the way the structure-function fit displays it.
+
+## Stages
+
+- **A — ingestion.** Schema, backfill script, splice integrity, manifest. *Ingestion
+  script and schema are in place; the daily-history importer and splice logic are not.*
+- **B — estimator.** `longmemory.mjs`, the `d(q)` chart, reported against measured.
+- **C — volume.** Second Table 1.4 column and the mixture-of-distributions view,
+  gated on per-asset volume availability.
+
+## Acceptance criteria
+
+- Simulated, measured and originally reported results stay clearly distinguished.
+- The seeded simulator and its zero-intermittency Gaussian limit are unchanged.
+- No key or connection string in the repository, in `dist/`, or in any browser request.
+- Empty data, unavailable history, invalid inputs and provider errors produce clear
+  states, never fabricated observations.
+- Overnight and weekend observations are excluded, and deseasonalisation applied,
+  before any estimate is reported.
+- A splice whose overlap residual exceeds tolerance fails rather than publishes.
+- Bar normalization and units are tested against a small fixture before any
+  empirical chart is compared with the chapter.
+
+## Open questions
+
+1. The equity is provisional. Block 2 of the source spreadsheet is unlabelled;
+   close 56.53 with 30.1 M volume on 2016-09-13 resembles MSFT, which is what
+   `scripts/ingest.mjs` currently assumes. Confirm before publishing results.
+2. `DGS10` treatment: yield differences or labelled log-changes.
+3. Whether the Polygon key covers crypto and forex, or stocks only.
+4. Neon's current free-tier storage limit, to confirm headroom above 38 MB.

@@ -6,6 +6,12 @@
   "description": "Chapter 1 laboratory for multifractal volatility research",
   "scripts": {
     "test": "node verify.mjs",
-    "check": "node --check dist/app.mjs && node --check dist/model.mjs"
+    "check": "node --check dist/app.mjs && node --check dist/model.mjs",
+    "ingest": "node scripts/ingest.mjs",
+    "ingest:init": "node scripts/ingest.mjs --init",
+    "ingest:status": "node scripts/ingest.mjs --status"
+  },
+  "devDependencies": {
+    "pg": "^8.13.1"
   }
 }
