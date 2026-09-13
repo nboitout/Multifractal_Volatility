@@ -115,6 +115,21 @@ reprocessing step. It generalises to halts, holidays, early closes and the FX
 Sunday open. Verified against a DST boundary: sessions and buckets remain correct
 when the UTC time of the open shifts.
 
+### A false positive worth naming
+
+On the fixture, the *uncorrected* variant produces d(3) = .031 and d(4) = -.001
+against Table 1.4's reported .0301 and .0035. The corrected variant gives .321 and
+.249, far from the reported values. In other words the artefact reproduces the
+chapter's headline decay almost exactly, and removing the artefact destroys the
+agreement.
+
+Anyone skipping the corrections would conclude they had reproduced the chapter, for
+entirely the wrong reason. This is why the preprocessing variant is a visible control
+in the Measured view rather than a fixed pipeline decision: the uncorrected curve has
+to be inspectable to be recognised as spurious. It is also why a measured curve that
+happens to match Table 1.4 should be treated as a warning to check the preprocessing
+before it is treated as a result.
+
 ### Intraday seasonality
 
 The U-shaped diurnal volatility pattern biases the estimators downward and puts a
@@ -173,9 +188,13 @@ mislead if displayed the way the structure-function fit displays it.
 
 ## Stages
 
-- **A — ingestion.** Schema, backfill script, splice integrity, manifest. *Ingestion
-  script and schema are in place; the daily-history importer and splice logic are not.*
-- **B — estimator.** `longmemory.mjs`, the `d(q)` chart, reported against measured.
+- **A — ingestion.** Schema, backfill script, splice integrity, manifest. *Schema and
+  backfill are in place and verified against the live store; the daily-history importer
+  and splice logic are not.*
+- **B — estimator.** *In place.* `dist/longmemory.mjs`, `dist/empirical.mjs`,
+  `scripts/derive.mjs` and the Measured view. Curves are precomputed offline for three
+  preprocessing variants and served as static JSON; the browser does no estimation.
+  Running against a labelled fixture until the backfill produces real bars.
 - **C — volume.** Second Table 1.4 column and the mixture-of-distributions view,
   gated on per-asset volume availability.
 

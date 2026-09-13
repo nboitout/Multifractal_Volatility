@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "datasets": [
+    {
+      "symbol": "FIXTURE",
+      "label": "Synthetic placeholder",
+      "kind": "fixture",
+      "resolutionMin": 5,
+      "from": "2024-09-16",
+      "to": "2026-08-20",
+      "file": "FIXTURE.curves.json"
+    }
+  ]
+}

@@ -12,11 +12,15 @@ The application uses plain HTML, CSS and JavaScript modules. There are no framew
 | `dist/style.css` | Responsive layout and visual design |
 | `dist/app.mjs` | Interface state, chart rendering and interaction handlers |
 | `dist/model.mjs` | Seeded cascade simulation, statistics, autocorrelations and scaling calculations |
+| `dist/longmemory.mjs` | Periodogram, GPH and local Whittle estimation of the chapter's d(q) |
+| `dist/empirical.mjs` | Bars to returns, overnight-gap and seasonality corrections, extended scaling |
+| `dist/data/` | Precomputed curves the Measured view reads, plus their manifest |
 | `verify.mjs` | Numerical checks and original-table transcription checks |
 | `vercel.json` | Static deployment configuration |
 | `package.json` | `npm test` and `npm run check`; `pg` is a devDependency used only by the offline scripts |
 | `scripts/schema.sql` | Research-store schema for five-minute bars |
 | `scripts/ingest.mjs` | Offline backfill from Polygon into the research store |
+| `scripts/derive.mjs` | Turns stored bars into the precomputed curves, or a labelled fixture |
 | `.env.example` | Template for the credentials the scripts read |
 | `docs/RESEARCH_NOTES.md` | Research provenance and numerical definitions |
 | `docs/POLYGON_INTEGRATION.md` | Market data design: architecture, corrections and staging |
@@ -93,7 +97,13 @@ npm install               # pulls pg, used only by the scripts
 npm run ingest:init       # create the schema and register the assets
 npm run ingest            # backfill; resumable, roughly 75 rate-limited requests
 npm run ingest:status     # what has been ingested so far
+npm run derive            # build dist/data/*.curves.json from the store
 ```
+
+The Measured view reads those derived files and nothing else, so the deployed
+site stays static and never queries the database. To review the view before any
+real data exists, `npm run derive:fixture` writes a synthetic placeholder that is
+labelled as such everywhere it appears.
 
 The backfill records progress per asset-month and skips completed months, so it
 can be interrupted and restarted at no cost. Overnight, weekend and holiday
