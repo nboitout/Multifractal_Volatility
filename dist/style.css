@@ -13,3 +13,19 @@
 .provenance dd{margin:0;color:#1f2937;word-break:break-word}
 .legend .purple-line:before{background:#6b46c1}
 .state-note{padding:28px 4px;color:#64748b;font-size:.92rem;line-height:1.6}
+
+.argument{display:flex;flex-wrap:wrap;gap:8px;list-style:none;margin:0 0 14px;padding:0}
+.argument li{display:flex;align-items:flex-start;gap:9px;flex:1 1 190px;min-width:0;padding:9px 11px;border:1px solid #e8edf4;border-radius:6px;background:#fbfcfe;font-size:.78rem;line-height:1.4;color:#7c8798}
+.argument li.active{color:#1f2937;border-color:#c7d9f7;background:#f2f7ff}
+.argument-n{flex:none;width:19px;height:19px;border-radius:50%;background:#e6ebf3;color:#64748b;font-size:.7rem;font-weight:750;display:grid;place-items:center}
+.argument li.active .argument-n{background:#245ad6;color:#fff}
+.argument-note{margin:0 0 16px;font-size:.8rem;color:#64748b}
+
+/* Six views no longer fit a phone-width strip. Let the strip scroll on its own
+   rather than widening the page; every view stays reachable. */
+@media (max-width:640px){
+  .workspace{min-width:0}
+  .tabs{justify-content:flex-start;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .tabs::-webkit-scrollbar{display:none}
+  .tabs>button{flex:0 0 auto;white-space:nowrap}
+}

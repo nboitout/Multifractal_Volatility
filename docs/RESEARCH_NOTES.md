@@ -10,6 +10,19 @@ The simulation implements a finite dyadic lognormal realization of the chapter's
 
 No modern rough-volatility model, synthetic trading volume, data import, or export is included. Original volume findings remain a historical reference, and no Chapter 2 integration is implemented.
 
+## Narrative order
+
+The views follow the chapter's argument rather than the order in which results are
+easiest to plot. Information flow states the Mixture of Distributions premise first;
+Returns, Memory and Scaling then present its consequences in the chapter's sequence;
+the two data views carry the evidence. A numbered rail names the four claims and
+marks which one each view serves.
+
+The Information flow view plots the benchmark series that `simulate` has always
+returned and the interface never displayed. Because the Gaussian shocks are shared
+across models at a fixed seed, the two lines there differ in K alone, which is what
+makes the mixture visible rather than merely asserted.
+
 ## Numerical specification
 
 - N = 2^J, J in 8..13. Independent lognormal multipliers on each child interval of a complete dyadic tree.

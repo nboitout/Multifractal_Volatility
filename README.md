@@ -8,7 +8,7 @@ The application uses plain HTML, CSS and JavaScript modules. There are no framew
 
 | File | Purpose |
 | --- | --- |
-| `dist/index.html` | Page structure, controls, chapter context and model assumptions |
+| `dist/index.html` | Page structure, the chapter's argument rail, controls and model assumptions |
 | `dist/style.css` | Responsive layout and visual design |
 | `dist/app.mjs` | Interface state, chart rendering and interaction handlers |
 | `dist/model.mjs` | Seeded cascade simulation, statistics, autocorrelations and scaling calculations |
