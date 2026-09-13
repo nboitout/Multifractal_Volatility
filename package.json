@@ -11,7 +11,8 @@
     "ingest:init": "node scripts/ingest.mjs --init",
     "ingest:status": "node scripts/ingest.mjs --status",
     "derive": "node scripts/derive.mjs",
-    "derive:fixture": "node scripts/derive.mjs --fixture"
+    "derive:fixture": "node scripts/derive.mjs --fixture",
+    "import": "node scripts/import-sheet.mjs"
   },
   "devDependencies": {
     "pg": "^8.13.1"

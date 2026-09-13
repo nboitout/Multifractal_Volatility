@@ -27,6 +27,22 @@ returned and the interface never displayed. Because the Gaussian shocks are shar
 across models at a fixed seed, the two lines there differ in K alone, which is what
 makes the mixture visible rather than merely asserted.
 
+## Applicability of the corrections
+
+Overnight-gap removal and deseasonalisation are properties of an intraday sample, not
+of the pipeline. A daily series has no bar spanning a market close, because consecutive
+trading days are the chapter's own convention, and no time-of-day profile to estimate.
+The payload therefore declares which corrections apply and the view offers only those.
+Applying the intraday filter to a daily sample would discard every observation after a
+weekend, a fifth of the sample and systematically the Mondays.
+
+The ten-year daily series carry roughly 2,600 observations each, which puts them close
+to the chapter's own 2,633 Alcatel returns and gives the same estimator bandwidth.
+
+DGS10 is a yield in per cent. It passes through the same transformation as the price
+series, so its values are log-changes of a yield rather than returns in the chapter's
+sense, and every view that shows it says so.
+
 ## Numerical specification
 
 - N = 2^J, J in 8..13. Independent lognormal multipliers on each child interval of a complete dyadic tree.

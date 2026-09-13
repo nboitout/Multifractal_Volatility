@@ -64,3 +64,6 @@ desktop.ini
 .env
 *.key
 credentials*
+
+# Imported market-data exports (source files, not deliverables)
+sources/

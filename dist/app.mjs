@@ -13,7 +13,8 @@ const ARGUMENT={
   scaling:{steps:[4],note:'Step 4 — behaviour that changes with the observation horizon.'},
   measured:{steps:[],note:'Evidence — the chapter’s estimator applied to a new series, read against the argument above.'},
   chapter:{steps:[],note:'Evidence — the original Alcatel results, exactly as reported.'}};
-const VARIANT_LABELS={raw:'no corrections applied',degapped:'overnight and weekend returns dropped',clean:'gaps dropped and deseasonalised'};
+const VARIANT_LABELS={asis:'as supplied, consecutive trading observations',raw:'no corrections applied',degapped:'overnight and weekend returns dropped',clean:'gaps dropped and deseasonalised'};
+const VARIANT_OPTIONS={asis:'As supplied — consecutive trading observations',raw:'No corrections',degapped:'Gaps dropped only',clean:'Gaps dropped and deseasonalised'};
 const pretty=(n,d=2)=>Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
 const short=n=>Math.abs(n)>=1000?Number(n).toLocaleString('en-US',{maximumFractionDigits:0}):Math.abs(n)>=10?pretty(n,1):Math.abs(n)>=.01||n===0?pretty(n,2):n.toExponential(1);
 const escape=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
@@ -83,7 +84,9 @@ function flow(){
     ?'Information intensity is constant in this configuration, so the two lines are the same series. Raise the intermittency, or set the return process to the lognormal cascade, to separate them.'
     :`Both lines use the same Gaussian draws Z<sub>t</sub> from seed ${params.seed}. Only K<sub>t</sub> differs. Where the blue line is larger the shocks are not larger; more information arrived. That alone lifts excess kurtosis from ${pretty(constant.excess)} to ${pretty(varying.excess)} without altering the distribution of Z<sub>t</sub>.`;
 }
-function measuredSummary(){if(!curves)return dataState==='loading'?'Loading measured series':'No measured series derived yet';const v=curves.variants[measuredVariant],p=curves.provenance;return `${p.label} · ${p.resolutionMin}-minute · ${p.from} to ${p.to} · ${v.n.toLocaleString('en-US')} returns`;}
+const resolutionLabel=m=>m>=1440?(m===1440?'daily':m/1440+'-day'):m+'-minute';
+const perObservation=m=>m>=1440?(m===1440?'Per trading day':'Per '+m/1440+'-day observation'):'Per '+m+'-minute observation';
+function measuredSummary(){if(!curves)return dataState==='loading'?'Loading measured series':'No measured series derived yet';const v=curves.variants[measuredVariant],p=curves.provenance;return `${p.label} · ${resolutionLabel(p.resolutionMin)} · ${p.from} to ${p.to} · ${v.n.toLocaleString('en-US')} returns`;}
 async function loadManifest(){
   try{const response=await fetch('./data/manifest.json',{cache:'no-cache'});if(!response.ok)throw Error('HTTP '+response.status);
     manifest=await response.json();const list=manifest?.datasets??[];
@@ -98,8 +101,8 @@ async function loadCurves(symbol){
   dataState='loading';curvesFor=symbol;render();
   try{const response=await fetch('./data/'+entry.file,{cache:'no-cache'});if(!response.ok)throw Error('HTTP '+response.status);
     const payload=await response.json();
-    if(payload.schema!==1)throw Error('unsupported payload version '+payload.schema);
-    curves=payload;dataState='ready';dataMessage=measuredSummary();
+    if(payload.schema!==2)throw Error('unsupported payload version '+payload.schema);
+    curves=payload;measuredVariant=payload.defaultVariant??Object.keys(payload.variants)[0];dataState='ready';dataMessage=measuredSummary();
   }catch(error){curves=null;dataState='error';dataMessage='Could not load '+entry.file+': '+error.message;}
   render();
 }
@@ -112,16 +115,27 @@ function measured(){
     $('measured-status').innerHTML=dataState==='loading'?'Loading measured series&hellip;':dataState==='error'?escape(dataMessage)
       :'No derived series yet. Populate the research store with <code>npm run ingest</code>, then build the curves with <code>npm run derive</code>. To review this view against a labelled placeholder first, run <code>npm run derive:fixture</code>.';
     return;}
-  const p=curves.provenance,v=curves.variants[measuredVariant],diag=curves.diagnostics;
+  const p=curves.provenance,diag=curves.diagnostics;
+  const keys=Object.keys(curves.variants);
+  if(!keys.includes(measuredVariant))measuredVariant=curves.defaultVariant??keys[0];
+  const select=$('measured-variant');
+  const wanted=keys.map(k=>`<option value="${k}">${escape(VARIANT_OPTIONS[k]??k)}</option>`).join('');
+  if(select.innerHTML!==wanted)select.innerHTML=wanted;
+  select.value=measuredVariant;select.disabled=keys.length<2;
+  $('measured-variant-help').textContent=keys.length<2
+    ?'This series is daily. Consecutive trading days are the chapter’s own convention, so there is no overnight bar to drop and no time-of-day profile to divide out.'
+    :'Overnight bars and the intraday volatility profile both bias these estimates. Switch to see by how much.';
+  const v=curves.variants[measuredVariant];
   $('measured-notice').innerHTML=p.kind==='fixture'
     ?'<div class="notice"><strong>Fixture, not a measurement</strong>This series is synthetic, generated by <code>scripts/derive.mjs --fixture</code> so that the view can be reviewed before the backfill has run. Every number below is a placeholder. None of it is measured from a market, and none of it should be read against the reported table except to confirm that the comparison renders.</div>'
     :'';
-  $('measured-asset-help').textContent=p.source+(p.adjusted===null?'':p.adjusted?' · split adjusted':' · unadjusted');
+  $('measured-asset-help').textContent=p.source+(p.adjusted===null?'':p.adjusted?' · split adjusted':' · unadjusted')+(p.quantity&&p.quantity!=='price'?' · '+p.quantity:'');
   $('measured-metrics').innerHTML=[
     ['Returns used',v.n.toLocaleString('en-US'),VARIANT_LABELS[measuredVariant]],
-    ['Gaps dropped',diag.gapsDropped.toLocaleString('en-US'),'Session boundaries, holidays and halts'],
+    diag.intraday?['Gaps dropped',diag.gapsDropped.toLocaleString('en-US'),'Session boundaries, holidays and halts']
+              :['Observations',diag.barsLoaded.toLocaleString('en-US'),'Trading days in the sample'],
     ['Bandwidth m',String(v.bandwidth),'Fourier frequencies in the fit'],
-    ['Return volatility',pretty(v.summary.sd,3)+'%','Per '+p.resolutionMin+'-minute observation'],
+    ['Return volatility',pretty(v.summary.sd,3)+'%',perObservation(p.resolutionMin)],
   ].map(([label,value,note])=>`<div class="metric"><p class="metric-label">${label}</p><p class="metric-value">${value}</p><p class="metric-note">${note}</p></div>`).join('');
   const band=k=>v.d.map(pt=>({x:pt.x,y:pt.y+k*2*pt.se}));
   chart('measured-d-chart',[
@@ -131,7 +145,8 @@ function measured(){
     {data:ORIGINAL_POWERS.map((x,i)=>({x,y:ORIGINAL_VOLUME[i]})),color:TEAL,dots:true,reference:true},
   ],{xmin:0,xmax:4,xticks:[0,1,2,3,4],xlabel:'Power q',ylabel:'Fractional dependence d̂',label:'Measured fractional-dependence estimates across power transformations, shown against the reported chapter table'});
   $('measured-fit').textContent='GPH · m = '+v.bandwidth;
-  $('measured-d-note').innerHTML=`Preprocessing: ${VARIANT_LABELS[measuredVariant]}. The band is two asymptotic standard errors, &plusmn;${pretty(2*v.d[0].se,3)}. The regression&rsquo;s R&sup2; is not a useful diagnostic for this estimator, because log-periodogram errors are log-&chi;&sup2; distributed, so a confidence band is reported instead. The reported Alcatel series are transcribed constants at daily frequency on a different instrument and period; they are drawn here for reference, not as a target.`;
+  $('measured-d-note').innerHTML=`Preprocessing: ${VARIANT_LABELS[measuredVariant]}. The band is two asymptotic standard errors, &plusmn;${pretty(2*v.d[0].se,3)}. The regression&rsquo;s R&sup2; is not a useful diagnostic for this estimator, because log-periodogram errors are log-&chi;&sup2; distributed, so a confidence band is reported instead. The reported Alcatel series are transcribed constants at daily frequency on a different instrument and period; they are drawn here for reference, not as a target.`
+    +(p.note?` <strong>${escape(p.note)}</strong>`:'');
   chart('measured-zeta-chart',[
     {data:v.zeta,color:PURPLE,dots:true,name:'ζ(q)'},
     {data:[{x:0,y:0},{x:4,y:2}],color:GRAY,dash:true,reference:true},
@@ -143,9 +158,10 @@ function measured(){
   $('measured-provenance').innerHTML=[
     ['Series',p.label],['Symbol',p.symbol],['Source',p.source],
     ['Nature',p.kind==='fixture'?'synthetic placeholder':'measured observations'],
-    ['Resolution',p.resolutionMin+' minute'],['Window',p.from+' to '+p.to],
+    ['Resolution',resolutionLabel(p.resolutionMin)],['Window',p.from+' to '+p.to],
     ['Bars loaded',diag.barsLoaded.toLocaleString('en-US')],['Returns used',v.n.toLocaleString('en-US')],
     ['Gaps dropped',diag.gapsDropped.toLocaleString('en-US')],['Time-of-day buckets',String(diag.buckets)],
+    ['Quantity',p.quantity??'price'],
     ['Adjustment',p.adjusted===null?'not applicable':p.adjusted?'split adjusted':'unadjusted'],
     ['Derived at',String(p.generatedAt).slice(0,16).replace('T',' ')+' UTC'],
   ].map(([k,val])=>`<div><dt>${escape(k)}</dt><dd>${escape(val)}</dd></div>`).join('');

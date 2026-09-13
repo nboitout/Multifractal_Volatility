@@ -21,6 +21,8 @@ The application uses plain HTML, CSS and JavaScript modules. There are no framew
 | `scripts/schema.sql` | Research-store schema for five-minute bars |
 | `scripts/ingest.mjs` | Offline backfill from Polygon into the research store |
 | `scripts/derive.mjs` | Turns stored bars into the precomputed curves, or a labelled fixture |
+| `scripts/import-sheet.mjs` | Imports the daily market-data spreadsheet into the same curves |
+| `scripts/manifest.mjs` | Rebuilds the dataset index from whatever curve files exist |
 | `.env.example` | Template for the credentials the scripts read |
 | `docs/RESEARCH_NOTES.md` | Research provenance and numerical definitions |
 | `docs/POLYGON_INTEGRATION.md` | Market data design: architecture, corrections and staging |
@@ -98,7 +100,15 @@ npm run ingest:init       # create the schema and register the assets
 npm run ingest            # backfill; resumable, roughly 75 rate-limited requests
 npm run ingest:status     # what has been ingested so far
 npm run derive            # build dist/data/*.curves.json from the store
+npm run import -- --csv sources/daily-market-data.csv   # or from the daily spreadsheet
 ```
+
+The spreadsheet holds several series side by side, each with its own Date column and
+its own trading calendar, so rows do not line up across blocks and are never read
+across. Which corrections apply is a property of the series: a daily series has no
+overnight bar to drop and no time-of-day profile to divide out, so it is served as
+supplied. Applying the intraday filter to daily data would discard every observation
+following a weekend, about a fifth of the sample.
 
 The Measured view reads those derived files and nothing else, so the deployed
 site stays static and never queries the database. To review the view before any

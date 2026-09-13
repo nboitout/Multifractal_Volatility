@@ -65,9 +65,21 @@ assert.ok(Math.abs(scalingExt(normal.returns,2,2048).fit.slope-1)<.2,'Gaussian s
 // --- payload contract --------------------------------------------------------
 const payloadBars=Array.from({length:640},(_,i)=>({close:100*Math.exp(Math.sin(i/7)/50),gap_min:i===0?null:i%80===0?1020:5,bucket:i%80}));
 const payload=buildPayload(payloadBars,{symbol:'T',label:'test',resolutionMin:5,adjusted:true,kind:'fixture'});
-assert.equal(payload.schema,1,'Payload carries a schema version the page can check.');
-assert.deepEqual(Object.keys(payload.variants),['raw','degapped','clean'],'All three preprocessing variants are served.');
+assert.equal(payload.schema,2,'Payload carries a schema version the page can check.');
+assert.deepEqual(Object.keys(payload.variants),['raw','degapped','clean'],'An intraday series is served with all three preprocessing variants.');
 assert.equal(payload.diagnostics.gapsDropped,7,'Session boundaries are counted.');
+assert.deepEqual(payload.corrections,{gaps:true,seasonality:true},'Intraday series declare both corrections applicable.');
+
+// A daily series has no overnight bar to drop and no time-of-day profile. Applying the
+// intraday filter to it would silently discard every observation after a weekend.
+const dailyBars=Array.from({length:520},(_,i)=>({close:100*Math.exp(Math.sin(i/11)/40),bucket:0,gap_min:i===0?null:(i%5===0?4320:1440)}));
+const daily=buildPayload(dailyBars,{symbol:'D',label:'daily',resolutionMin:1440,adjusted:true,kind:'fixture'});
+assert.deepEqual(Object.keys(daily.variants),['asis'],'A daily series is served as supplied, with no intraday variants.');
+assert.deepEqual(daily.corrections,{gaps:false,seasonality:false},'Daily series declare no intraday correction applicable.');
+assert.equal(daily.defaultVariant,'asis','The default variant must be one the payload actually carries.');
+assert.equal(daily.variants.asis.n,dailyBars.length-1,'Every consecutive trading day contributes a return.');
+const wouldKeep=returnsFromBars(dailyBars,1440,{dropGaps:true}).returns.length;
+assert.ok(wouldKeep<daily.variants.asis.n*0.85,`The intraday filter would silently discard a fifth of a daily sample (${daily.variants.asis.n} -> ${wouldKeep}); the payload must not offer it.`);
 for(const key of Object.keys(payload.variants)){const v=payload.variants[key];
   assert.equal(v.d.length,MOMENT_ORDERS.length,'d(q) covers the chapter moment orders.');
   assert.equal(v.zeta.length,MOMENT_ORDERS.length,'zeta(q) covers the same orders.');
@@ -76,4 +88,4 @@ for(const key of Object.keys(payload.variants)){const v=payload.variants[key];
 assert.ok(payload.variants.degapped.n<payload.variants.raw.n,'Dropping gaps must shrink the sample.');
 assert.equal(payload.variants.clean.n,payload.variants.degapped.n,'Deseasonalising rescales, it does not drop observations.');
 
-console.log(JSON.stringify({status:'passed',checks:['zero-intermittency identity','seed reproducibility','shared Gaussian shocks','aggregation','constant-series handling','historical transcription','parameter validation','Gaussian moments and scaling','parameter endpoints','long-memory recovery','estimator agreement','overnight gap handling','deseasonalisation','extended scale range','payload contract'],gaussian:gstats,defaultCascade:stats(cascade.returns),gaussianSecondOrderSlope:gs.fit.slope,longMemoryRecovery:recovered},null,2));
+console.log(JSON.stringify({status:'passed',checks:['zero-intermittency identity','seed reproducibility','shared Gaussian shocks','aggregation','constant-series handling','historical transcription','parameter validation','Gaussian moments and scaling','parameter endpoints','long-memory recovery','estimator agreement','overnight gap handling','deseasonalisation','extended scale range','payload contract','daily series carry no intraday correction'],gaussian:gstats,defaultCascade:stats(cascade.returns),gaussianSecondOrderSlope:gs.fit.slope,longMemoryRecovery:recovered},null,2));

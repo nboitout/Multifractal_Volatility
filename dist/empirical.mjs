@@ -90,33 +90,50 @@ export function buildVariant(returns, {maxScale = 2048, bandwidth} = {}) {
   };
 }
 
-// The payload served to the browser: three preprocessing variants of one series,
-// so the page can show what the corrections do instead of only claiming it.
+// The payload served to the browser. Which corrections apply depends on the series:
+// a daily series has no overnight bar to drop, because consecutive trading days are
+// the chapter's own convention, and no time-of-day profile to divide out. Applying
+// the intraday filter to it would discard every Monday. So the payload declares what
+// is applicable and the view offers only that.
 export function buildPayload(bars, provenance, options = {}) {
   const resolution = provenance.resolutionMin;
+  const intraday = resolution < 1440 && new Set(bars.map(b => b.bucket ?? 0)).size > 1;
   const rawRun = returnsFromBars(bars, resolution, {dropGaps: false});
-  const cleanRun = returnsFromBars(bars, resolution, {dropGaps: true});
-  const deseasonalised = deseasonalise(cleanRun.returns, cleanRun.buckets);
 
-  return {
-    schema: 1,
-    provenance: {...provenance, generatedAt: new Date().toISOString()},
-    diagnostics: {
-      barsLoaded: bars.length,
-      returnsRaw: rawRun.returns.length,
-      returnsDegapped: cleanRun.returns.length,
-      gapsDropped: cleanRun.dropped,
-      buckets: new Set(cleanRun.buckets).size,
-    },
-    variants: {
+  let variants, defaultVariant;
+  if (intraday) {
+    const cleanRun = returnsFromBars(bars, resolution, {dropGaps: true});
+    variants = {
       raw: buildVariant(rawRun.returns, options),
       degapped: buildVariant(cleanRun.returns, options),
-      clean: buildVariant(deseasonalised, options),
+      clean: buildVariant(deseasonalise(cleanRun.returns, cleanRun.buckets), options),
+    };
+    defaultVariant = 'clean';
+  } else {
+    variants = {asis: buildVariant(rawRun.returns, options)};
+    defaultVariant = 'asis';
+  }
+
+  return {
+    schema: 2,
+    provenance: {...provenance, generatedAt: new Date().toISOString()},
+    corrections: {gaps: intraday, seasonality: intraday},
+    defaultVariant,
+    diagnostics: {
+      intraday,
+      barsLoaded: bars.length,
+      returnsRaw: rawRun.returns.length,
+      returnsUsed: variants[defaultVariant].n,
+      gapsDropped: intraday ? returnsFromBars(bars, resolution, {dropGaps: true}).dropped : 0,
+      nonContiguous: rawRun.dropped,
+      buckets: new Set(bars.map(b => b.bucket ?? 0)).size,
     },
+    variants,
   };
 }
 
 export const VARIANT_LABELS = {
+  asis: 'As supplied — consecutive trading observations',
   raw: 'No corrections',
   degapped: 'Overnight and weekend returns dropped',
   clean: 'Dropped and deseasonalised',
