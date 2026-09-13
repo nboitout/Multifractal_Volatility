@@ -1,0 +1,11 @@
+{
+  "name": "multifractal-volatility-lab",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Chapter 1 laboratory for multifractal volatility research",
+  "scripts": {
+    "test": "node verify.mjs",
+    "check": "node --check dist/app.mjs && node --check dist/model.mjs"
+  }
+}

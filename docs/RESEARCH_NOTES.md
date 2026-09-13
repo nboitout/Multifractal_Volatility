@@ -1,0 +1,31 @@
+# Multifractal Volatility Lab
+
+An interactive reconstruction based on Chapter 1 supplied by Nicolas Boitout and the publication by Nicolas Boitout and Loredana Ureche-Rangau, *Towards a Multifractal Paradigm of Stochastic Volatility?*, IJTAF 7(7), 823–851 (2004), DOI 10.1142/S0219024904002736.
+
+## Scope and provenance
+
+The source supplied for implementation is the reconstructed Word chapter `multifractal_volatility_article(1).docx`, not the original scanned publication or Datastream observations. Original Table 1.4 is transcribed as reported. It is never recomputed or presented as simulator output. The reconstruction labels its figure redrawings as indicative, and they are not used as measured data in this lab.
+
+The simulation implements a finite dyadic lognormal realization of the chapter's multiplicative-cascade framework. The normalization and computational details are explicit choices, disclosed in the page. This is not a calibrated reproduction of the Alcatel data-generating process or a claim to recover the author's original simulation code.
+
+No modern rough-volatility model, synthetic trading volume, data import, or export is included. Original volume findings remain a historical reference, and no Chapter 2 integration is implemented.
+
+## Numerical specification
+
+- N = 2^J, J in 8..13. Independent lognormal multipliers on each child interval of a complete dyadic tree.
+- log W ~ Normal(-v, v), v = lambda^2 * log(2). Here the UI `lambda` variable stores lambda squared itself.
+- E[W^2] = 1; sigma_t = sigma0 * product W_j,t; r_t = sigma_t * Z_t.
+- Gaussian shocks and cascade multipliers use separate deterministic pseudorandom streams, with Box–Muller normal draws. The benchmark and cascade share the Gaussian shocks for a fixed seed. Intermittency zero yields exact equality.
+- Returns and volatility are in percentage points; aggregated log returns are non-overlapping sums, dropping incomplete last blocks.
+- Histograms cover full observed ranges. The reference Gaussian uses sample mean and population variance. Excess kurtosis and skewness use uncorrected central sample moments.
+- Autocorrelations use sample centering and the full centered sum of squares as the denominator.
+- Coarse/fine dependence: all sliding 5-observation windows; coarse is absolute summed return, fine is mean absolute return. Correlation at lag k pairs coarse_t with fine_(t+k), using full-series means and overlapping pairs. No significance or causal claims.
+- Structure functions: overlapping increments at powers of two up to min(64, N/16); moment orders .25..4 by .25. Ordinary least squares on log2 moments against log2 horizon. A finite stochastic-cascade realization is not a proof of asymptotic multifractality.
+
+## Source
+
+`dist/index.html`, `dist/style.css`, `dist/app.mjs` and `dist/model.mjs` are authored static assets. No framework or dependency installation is required. The Site manifest selects `dist` as the public output. Scientific checks can be run with `node verify.mjs`.
+
+## Validation scope
+
+Numerical invariants, benchmark moments and scaling, boundary parameters, original-table entries, JavaScript syntax, HTML associations and local assets were checked. Browser interaction and visual QA were not requested and were not run. Optional WebMCP registration and execution validation was unavailable because no permitted supported browser context was available; the tools are feature-detected and use the same parameter validation as the controls.

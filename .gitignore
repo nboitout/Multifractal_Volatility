@@ -1,0 +1,63 @@
+# --- Data (keep raw/large data out of git) ---
+data/raw/
+data/interim/
+*.csv
+*.parquet
+*.h5
+*.hdf5
+*.mat
+*.pkl
+*.npy
+*.npz
+*.zip
+*.7z
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
+*.egg-info/
+.pytest_cache/
+
+# --- R ---
+.Rhistory
+.RData
+.Rproj.user/
+
+# --- MATLAB ---
+*.asv
+*.mex*
+slprj/
+
+# --- LaTeX ---
+*.aux
+*.log
+*.out
+*.bbl
+*.blg
+*.synctex.gz
+*.toc
+*.fls
+*.fdb_latexmk
+
+# --- Outputs / figures (uncomment if you do not want them tracked) ---
+# figures/
+# output/
+# results/
+
+# --- OS / editors ---
+Thumbs.db
+desktop.ini
+.DS_Store
+*.tmp
+~$*
+.vscode/
+.idea/
+
+# --- Secrets ---
+.env
+*.key
+credentials*
