@@ -24,8 +24,11 @@ That is the point of this work; the data pipeline exists to serve it.
 
 Three tiers, deliberately separated:
 
-1. **Research store** — Neon Postgres. Five-minute bars for the intraday assets.
-   Written once by `scripts/ingest.mjs`. Never queried by the browser.
+1. **Research store** — Neon Postgres, in a project of its own so the free plan's
+   per-project allowances are not shared with unrelated work. Five-minute bars for
+   the intraday assets, written once by `scripts/ingest.mjs`. Never queried by the
+   browser. Use the direct connection string rather than the pooled one: the
+   backfill is a batch job holding a single long-lived client.
 2. **Batch derivation** — an offline job that reads the store, applies the
    corrections below, and writes small precomputed curves (structure functions,
    autocorrelations, `d(q)` across the sixteen chapter moment orders).
@@ -84,8 +87,13 @@ Measured against a two-year free-tier window:
 Five minutes is the canonical sampling frequency in the realized-volatility
 literature for the microstructure-noise-versus-frequency tradeoff, so it needs no
 special defence. Thirty minutes would gain only two octaves over the daily series
-already in hand. One minute costs five times the storage and sits closer to the
-bandwidth problem described below.
+already in hand. One minute sits far closer to the bandwidth problem described
+below, clearing the GPH band by 14 per cent against five minutes' factor of 2.5.
+
+Storage does not decide this. Neon's free-plan allowances are per project, so a
+dedicated project carries 0.5 GB, 100 CU-hours per month and 5 GB of transfer of
+its own, and every resolution in the table above fits. The bandwidth margin and
+the literature convention are the reasons.
 
 Stitched onto the ten-year daily series, five-minute bars span roughly five
 minutes to 128 days: about fifteen octaves.
@@ -191,4 +199,3 @@ mislead if displayed the way the structure-function fit displays it.
    `scripts/ingest.mjs` currently assumes. Confirm before publishing results.
 2. `DGS10` treatment: yield differences or labelled log-changes.
 3. Whether the Polygon key covers crypto and forex, or stocks only.
-4. Neon's current free-tier storage limit, to confirm headroom above 38 MB.
