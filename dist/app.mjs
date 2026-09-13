@@ -9,7 +9,7 @@ let manifest=null,curves=null,curvesFor='',dataState='idle',dataMessage='',measu
 const ARGUMENT={
   flow:{steps:[1],note:'Step 1 — the assumption the rest of the chapter rests on.'},
   returns:{steps:[1],note:'Step 1, continued — the first consequence of letting information intensity vary.'},
-  memory:{steps:[2,3],note:'Steps 2 and 3 — persistence, and what power transformations show that a single measure cannot.'},
+  memory:{steps:[2,3],note:'Steps 2 and 3 — persistence, and how it changes with the power measured and across scales.'},
   scaling:{steps:[4],note:'Step 4 — behaviour that changes with the observation horizon.'},
   measured:{steps:[],note:'Evidence — the chapter’s estimator applied to a new series, read against the argument above.'},
   chapter:{steps:[],note:'Evidence — the original Alcatel results, exactly as reported.'}};

@@ -29,3 +29,22 @@
   .tabs::-webkit-scrollbar{display:none}
   .tabs>button{flex:0 0 auto;white-space:nowrap}
 }
+
+/* The chapter reproduced in full, inside the Original chapter view. */
+.chapter-source{margin-top:0}
+.doc-toc{margin:18px 0 4px;padding:14px 16px;border:1px solid var(--border);border-radius:6px;background:#fbfcfe}
+.doc-toc ul{margin:8px 0 0;padding:0 0 0 2px;list-style:none;display:grid;gap:6px}
+.doc-toc a{font-size:.875rem;color:#2253ab;text-decoration:none;border-bottom:1px solid transparent}
+.doc-toc a:hover,.doc-toc a:focus-visible{border-bottom-color:currentColor}
+.doc-body{margin-top:8px;max-width:74ch}
+.doc-body p{margin:0 0 13px;line-height:1.66}
+.doc-body h4{margin:30px 0 10px;font-size:1.08rem;color:#123a80;scroll-margin-top:16px}
+.doc-body h5{margin:22px 0 8px;font-size:.97rem;scroll-margin-top:16px}
+.doc-body h6{margin:18px 0 6px;font-size:.9rem;color:#475569;letter-spacing:.01em;scroll-margin-top:16px}
+.doc-kicker{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:#64748b;margin:0 0 4px}
+.doc-note{font-style:italic;color:#64748b;font-size:.875rem}
+.doc-body .math-line{margin:14px 0;text-align:center}
+.doc-figure,.doc-table{margin:20px 0;max-width:100%}
+.doc-figure img{display:block;max-width:100%;height:auto;margin:0 auto;border:1px solid var(--border);border-radius:5px;background:#fff}
+.doc-figure figcaption,.doc-table figcaption{margin-top:8px;font-size:.8125rem;font-style:italic;color:#64748b;text-align:center}
+.doc-table figcaption{text-align:left}

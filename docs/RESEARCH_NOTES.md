@@ -4,7 +4,11 @@ An interactive reconstruction based on Chapter 1 supplied by Nicolas Boitout and
 
 ## Scope and provenance
 
-The source supplied for implementation is the reconstructed Word chapter `multifractal_volatility_article(1).docx`, not the original scanned publication or Datastream observations. Original Table 1.4 is transcribed as reported. It is never recomputed or presented as simulator output. The reconstruction labels its figure redrawings as indicative, and they are not used as measured data in this lab.
+The source supplied for implementation is the reconstructed Word chapter `multifractal_volatility_article(1).docx`, not the original scanned publication or Datastream observations. Original Table 1.4 is transcribed as reported. It is never recomputed or presented as simulator output.
+
+That chapter is now reproduced in full under `Original chapter`, converted from the supplied document: seven sections, four tables, seven figures and forty displayed equations. Its Table 1.4 was checked against the constants in `dist/model.mjs` and all sixteen rows of both columns agree, so the transcription is verified against the source rather than asserted.
+
+Two rendering decisions were made in that conversion. Every body paragraph in the supplied document is italicised and none are upright, so the italics carry no emphasis and the web rendering sets body prose upright, keeping italics for captions and the provenance note. The document also reuses one image for both Figure 1.2 and Figure 1.4; both are reproduced as supplied. The reconstruction labels its figure redrawings as indicative, and they are not used as measured data in this lab.
 
 The simulation implements a finite dyadic lognormal realization of the chapter's multiplicative-cascade framework. The normalization and computational details are explicit choices, disclosed in the page. This is not a calibrated reproduction of the Alcatel data-generating process or a claim to recover the author's original simulation code.
 
