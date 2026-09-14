@@ -43,6 +43,23 @@ DGS10 is a yield in per cent. It passes through the same transformation as the p
 series, so its values are log-changes of a yield rather than returns in the chapter's
 sense, and every view that shows it says so.
 
+## Measured series
+
+Five daily series span 14 September 2016 to September 2026, imported from the supplied
+spreadsheet: Microsoft, Bitcoin, EUR/USD, the US ten-year Treasury yield and Brent crude.
+Each carries between 2,496 and 3,653 observations, so the estimator runs at bandwidths of
+49 to 60 against the chapter's 51 on 2,633 Alcatel returns. The estimation setup is
+therefore close to the original even though the instruments and period are not.
+
+The source quotes EUR/USD on Saturdays and Sundays, when the foreign-exchange market is
+closed, and two in five Saturday quotes repeat the Friday. Those 1,032 observations are
+excluded, which leaves 2,606 consecutive trading days with a single repeated value. The
+exclusion is declared per series in the importer and reported in the view, not applied
+quietly. Bitcoin genuinely trades every day and is kept whole.
+
+The spreadsheet itself is not committed. It is the user's own export of third-party
+market data, and the derived curves are the deliverable.
+
 ## Numerical specification
 
 - N = 2^J, J in 8..13. Independent lognormal multipliers on each child interval of a complete dyadic tree.

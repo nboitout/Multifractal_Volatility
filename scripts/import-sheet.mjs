@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Import the "Daily Market Data" spreadsheet into the curves the Markets today view reads.
 //
-//   node scripts/import-sheet.mjs --csv sources/daily-market-data.csv
+//   node scripts/import-sheet.mjs sources/daily-market-data.xlsx
+//   node scripts/import-sheet.mjs sources/daily-market-data.csv
 //
 // The sheet holds several series side by side, each with its OWN Date column and its
 // own calendar: the equity skips NYSE holidays, the FRED series skip bond holidays,
@@ -13,6 +14,7 @@
 // European reading is forced rather than sniffed.
 
 import {readFileSync, writeFileSync, mkdirSync} from 'node:fs';
+import {readSheet} from './xlsx.mjs';
 import {resolve, dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {buildPayload} from '../dist/empirical.mjs';
@@ -29,7 +31,10 @@ const SERIES = [
   {match: c => c.some(x => x.includes('BTC')), symbol: 'BTCUSD',
    label: 'Bitcoin', assetClass: 'crypto', quantity: 'price', order: 2},
   {match: c => c.length === 1 && c[0] === 'Close', symbol: 'EURUSD',
-   label: 'EUR/USD', assetClass: 'fx', quantity: 'price', order: 3},
+   label: 'EUR/USD', assetClass: 'fx', quantity: 'price', order: 3, weekdaysOnly: true,
+   note: 'The source quotes this series on Saturdays and Sundays, when the foreign-exchange '
+       + 'market is closed; two in five Saturday quotes simply repeat the Friday. Weekend '
+       + 'observations are excluded, leaving consecutive trading days as for the other series.'},
   {match: c => c.includes('DGS10'), symbol: 'DGS10',
    label: 'US 10-year Treasury yield', assetClass: 'rates', quantity: 'yield', order: 4,
    note: 'This series is a yield in per cent, not a price. The pipeline applies the same '
@@ -73,33 +78,47 @@ const number = raw => {
   return Number.isFinite(v) ? v : null;
 };
 
-// Split the header into blocks, each starting at a Date column.
+// Split the header into blocks, each starting at a Date column. The export separates
+// series with an empty column, so blank headers are dropped while the real ones keep
+// their absolute index.
 function blocks(header) {
-  const starts = header.map((h, i) => h.trim() === 'Date' ? i : -1).filter(i => i >= 0);
+  const starts = header.map((h, i) => (h ?? '').trim() === 'Date' ? i : -1).filter(i => i >= 0);
   return starts.map((start, k) => ({
     start,
-    columns: header.slice(start + 1, starts[k + 1] ?? header.length).map(h => h.trim()),
+    fields: header.slice(start + 1, starts[k + 1] ?? header.length)
+      .map((name, offset) => ({name: (name ?? '').trim(), index: start + 1 + offset}))
+      .filter(f => f.name),
   }));
 }
 
 function seriesFrom(rows, block) {
-  const spec = SERIES.find(s => s.match(block.columns));
+  const names = block.fields.map(f => f.name);
+  const spec = SERIES.find(s => s.match(names));
   if (!spec) return null;
-  const closeIdx = block.columns.findIndex(c => /^Close/.test(c));
-  const valueIdx = closeIdx >= 0 ? closeIdx : block.columns.length - 1;
-  const volumeIdx = block.columns.findIndex(c => /^Volume/.test(c));
+  const value = block.fields.find(f => /^Close/.test(f.name)) ?? block.fields.at(-1);
+  const volumeField = block.fields.find(f => /^Volume/.test(f.name));
 
   const byDate = new Map();
   for (const row of rows) {
     const ts = parseDate(row[block.start] ?? '');
     if (ts === null) continue;
-    const value = number(row[block.start + 1 + valueIdx] ?? '');
-    if (value === null || value <= 0) continue;         // a yield of zero is unusable here too
-    const volume = volumeIdx >= 0 ? number(row[block.start + 1 + volumeIdx] ?? '') : null;
-    byDate.set(ts, {value, volume});
+    const close = number(row[value.index] ?? '');
+    if (close === null || close <= 0) continue;         // a yield of zero is unusable here too
+    const volume = volumeField ? number(row[volumeField.index] ?? '') : null;
+    byDate.set(ts, {value: close, volume});
   }
 
-  const bars = [...byDate.keys()].sort((a, b) => a - b).map((ts, i, all) => ({
+  // Some sources quote a market on days it does not trade. Excluding those is a property
+  // of the instrument, so it is declared per series and reported rather than done quietly.
+  let excluded = 0;
+  const dates = [...byDate.keys()].sort((a, b) => a - b).filter(ts => {
+    if (!spec.weekdaysOnly) return true;
+    const day = new Date(ts).getUTCDay();
+    if (day === 0 || day === 6) { excluded++; return false; }
+    return true;
+  });
+
+  const bars = dates.map((ts, i, all) => ({
     ts: new Date(ts).toISOString(),
     close: byDate.get(ts).value,
     volume: byDate.get(ts).volume,
@@ -107,17 +126,19 @@ function seriesFrom(rows, block) {
     gap_min: i === 0 ? null : Math.round((ts - all[i - 1]) / 60_000),
     session: new Date(ts).toISOString().slice(0, 10),
   }));
-  return {spec, bars, hasVolume: volumeIdx >= 0 && bars.some(b => b.volume !== null)};
+  return {spec, bars, excluded, hasVolume: Boolean(volumeField) && bars.some(b => b.volume !== null)};
 }
 
 function main() {
-  const args = process.argv.slice(2);
-  const csvPath = args.includes('--csv') ? args[args.indexOf('--csv') + 1] : undefined;
-  if (!csvPath) throw new Error('Usage: node scripts/import-sheet.mjs --csv <file>');
+  const args = process.argv.slice(2).filter(a => a !== '--csv' && a !== '--xlsx');
+  const sourcePath = args[0];
+  if (!sourcePath) throw new Error('Usage: node scripts/import-sheet.mjs <file.xlsx|file.csv>');
 
-  const text = readFileSync(resolve(ROOT, csvPath), 'utf8').replace(/^﻿/, '');
-  const rows = parseCsv(text);
-  if (rows.length < 2) throw new Error('The CSV has no data rows.');
+  const full = resolve(ROOT, sourcePath);
+  const rows = /\.xlsx$/i.test(sourcePath)
+    ? readSheet(full)
+    : parseCsv(readFileSync(full, 'utf8').replace(/^\uFEFF/, ''));
+  if (rows.length < 2) throw new Error('That file has no data rows.');
   const [header, ...data] = rows;
 
   const found = blocks(header);
@@ -127,8 +148,8 @@ function main() {
   let imported = 0;
   for (const block of found) {
     const series = seriesFrom(data, block);
-    if (!series) { console.warn(`  unrecognised block at column ${block.start}: ${block.columns.join(', ')}`); continue; }
-    const {spec, bars, hasVolume} = series;
+    if (!series) { console.warn(`  unrecognised block at column ${block.start}: ${block.fields.map(f => f.name).join(', ')}`); continue; }
+    const {spec, bars, excluded, hasVolume} = series;
     if (bars.length < 100) { console.warn(`  ${spec.symbol}: only ${bars.length} observations, skipping`); continue; }
 
     const payload = buildPayload(bars, {
@@ -142,7 +163,8 @@ function main() {
     const gaps = bars.filter(b => b.gap_min !== null && b.gap_min > 1440).length;
     console.log(`  ${spec.symbol.padEnd(8)} ${String(bars.length).padStart(5)} obs  `
       + `${bars[0].session} .. ${bars.at(-1).session}  `
-      + `${gaps} multi-day gaps  volume:${hasVolume ? 'yes' : 'no'}`);
+      + `${gaps} multi-day gaps  volume:${hasVolume ? 'yes' : 'no'}`
+      + (excluded ? `  (${excluded} non-trading days excluded)` : ''));
     imported++;
   }
   if (!imported) throw new Error('No recognised series in that CSV.');

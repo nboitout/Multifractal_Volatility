@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {simulate,validateParams,aggregate,stats,acf,scaling,crossScale,ORIGINAL_POWERS,ORIGINAL_VOL,ORIGINAL_VOLUME} from './dist/model.mjs';
 import {gph,localWhittle,periodogram,defaultBandwidth} from './dist/longmemory.mjs';
 import {returnsFromBars,deseasonalise,scalingExt,buildPayload,MOMENT_ORDERS} from './dist/empirical.mjs';
+import {serialToISO} from './scripts/xlsx.mjs';
 const normal=simulate({model:'gaussian',seed:2004,depth:12});
 const uniform=simulate({lambda:0,seed:2004,depth:12});
 assert.deepEqual(normal.returns,uniform.returns,'Zero-intermittency limit must exactly equal the Gaussian benchmark.');
@@ -62,6 +63,18 @@ assert.ok(scalingExt(deep,2,2048).scales.at(-1)>64,'The extended structure funct
 assert.deepEqual(scalingExt(deep,2,64).scales,scaling(deep,2).scales,'At maxScale 64 it must agree with model.mjs on the scale set.');
 assert.ok(Math.abs(scalingExt(normal.returns,2,2048).fit.slope-1)<.2,'Gaussian second-order slope stays near one over the wider range.');
 
+// --- spreadsheet serial dates ---
+// Excel counts days from an epoch two days before 1900-01-01, thanks to a leap-year bug
+// it inherited; getting this wrong shifts an entire imported series.
+assert.equal(serialToISO(25569),'1970-01-01','Serial 25569 is the Unix epoch.');
+assert.equal(serialToISO(61),'1900-03-01','The linear conversion is exact from 1 March 1900 onward.');
+assert.equal(serialToISO(42627.99861),'2016-09-14','A dated cell keeps its day despite the time fraction.');
+assert.equal(serialToISO(42627.66667),'2016-09-14','A different time of day on the same date.');
+assert.equal(serialToISO(46275),'2026-09-10','A recent date round-trips.');
+// Before 1 March 1900 the sheet format itself is off by a day, because Excel treats 1900
+// as a leap year. No market series reaches back that far, so the linear form is kept.
+assert.equal(serialToISO(1),'1899-12-31','Documented behaviour below the leap-year-bug boundary.');
+
 // --- payload contract --------------------------------------------------------
 const payloadBars=Array.from({length:640},(_,i)=>({close:100*Math.exp(Math.sin(i/7)/50),gap_min:i===0?null:i%80===0?1020:5,bucket:i%80}));
 const payload=buildPayload(payloadBars,{symbol:'T',label:'test',resolutionMin:5,adjusted:true,kind:'fixture'});
@@ -88,4 +101,4 @@ for(const key of Object.keys(payload.variants)){const v=payload.variants[key];
 assert.ok(payload.variants.degapped.n<payload.variants.raw.n,'Dropping gaps must shrink the sample.');
 assert.equal(payload.variants.clean.n,payload.variants.degapped.n,'Deseasonalising rescales, it does not drop observations.');
 
-console.log(JSON.stringify({status:'passed',checks:['zero-intermittency identity','seed reproducibility','shared Gaussian shocks','aggregation','constant-series handling','historical transcription','parameter validation','Gaussian moments and scaling','parameter endpoints','long-memory recovery','estimator agreement','overnight gap handling','deseasonalisation','extended scale range','payload contract','daily series carry no intraday correction'],gaussian:gstats,defaultCascade:stats(cascade.returns),gaussianSecondOrderSlope:gs.fit.slope,longMemoryRecovery:recovered},null,2));
+console.log(JSON.stringify({status:'passed',checks:['zero-intermittency identity','seed reproducibility','shared Gaussian shocks','aggregation','constant-series handling','historical transcription','parameter validation','Gaussian moments and scaling','parameter endpoints','long-memory recovery','estimator agreement','overnight gap handling','deseasonalisation','extended scale range','payload contract','daily series carry no intraday correction','spreadsheet serial dates'],gaussian:gstats,defaultCascade:stats(cascade.returns),gaussianSecondOrderSlope:gs.fit.slope,longMemoryRecovery:recovered},null,2));
