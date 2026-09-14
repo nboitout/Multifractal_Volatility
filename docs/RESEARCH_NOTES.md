@@ -17,6 +17,16 @@ links to itself at full size for readers on narrow screens where the panel label
 small to read. Lossless recompression was tried and returned four per cent, so the file is
 served as supplied.
 
+It does not take the full width of the page. The laboratory below it runs to 1450px, and
+at that width the plate dominates the screen: the chapter opens on an illustration rather
+than on an argument, and the controls are pushed off the fold. It is capped instead at the
+measure the Chapter 2 site gives its own opening figure — that page's width less its
+gutters, stepping with it at 1500px and 1800px — so the two chapters open at the same size
+on the same screen: 1112px wide on a laptop, 1240px, then 1368px. Below about 1160px the
+cap stops applying and the figure is as wide as the page, as it was before. It stays flush
+left rather than centring in the width it gives up, so that its edge is the one the
+running head, the title and the controls column already share.
+
 ## Scope and provenance
 
 The source supplied for implementation is the reconstructed Word chapter `multifractal_volatility_article(1).docx`, not the original scanned publication or Datastream observations. Original Table 1.4 is transcribed as reported. It is never recomputed or presented as simulator output.

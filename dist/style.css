@@ -37,10 +37,24 @@
 
 /* The intuition figure: first thing after the title, above the laboratory, and outside
    the tab strip so it stays visible whichever view is selected. Width and height are
-   declared on the image so the page does not reflow around it on first paint. */
-.hero-figure{margin:0 0 30px;padding:0}
+   declared on the image so the page does not reflow around it on first paint.
+
+   It is capped narrower than the laboratory below it. At the full 1450px of the page the
+   plate dominates the screen and the chapter opens on an illustration rather than on an
+   argument; held in, it reads as a frontispiece and the laboratory still starts above the
+   fold. The cap is the measure the Chapter 2 site gives its own opening figure — that
+   page's width, less its gutters, at its own two steps — so the two chapters open at the
+   same size on the same screen.
+
+   It stays flush left rather than centring in the space it gives up, so that its edge is
+   the one the running head, the title and the controls column already share. The caption
+   follows the figure's left edge for the same reason; it was centred only because the
+   figure used to be the full width of the page. */
+.hero-figure{--figure-page:72rem;max-width:calc(var(--figure-page) - 2.5rem);margin:0 0 30px;padding:0}
+@media(min-width:1500px){.hero-figure{--figure-page:80rem}}
+@media(min-width:1800px){.hero-figure{--figure-page:88rem}}
 .hero-figure img{display:block;width:100%;height:auto;border:1px solid var(--border);border-radius:8px;background:#fff}
-.hero-figure figcaption{margin:12px auto 0;max-width:78ch;font-size:.875rem;line-height:1.6;color:#64748b}
+.hero-figure figcaption{margin:12px 0 0;max-width:78ch;font-size:.875rem;line-height:1.6;color:#64748b}
 @media(max-width:640px){.hero-figure{margin-bottom:22px}.hero-figure figcaption{font-size:.8125rem}}
 .hero-figure a{display:block;border-radius:8px}
 .hero-figure a:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
