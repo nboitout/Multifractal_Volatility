@@ -34,3 +34,13 @@
 .doc-figure img{display:block;max-width:100%;height:auto;margin:0 auto;border:1px solid var(--border);border-radius:5px;background:#fff}
 .doc-figure figcaption,.doc-table figcaption{margin-top:8px;font-size:.8125rem;font-style:italic;color:#64748b;text-align:center}
 .doc-table figcaption{text-align:left}
+
+/* The intuition figure: first thing after the title, above the laboratory, and outside
+   the tab strip so it stays visible whichever view is selected. Width and height are
+   declared on the image so the page does not reflow around it on first paint. */
+.hero-figure{margin:0 0 30px;padding:0}
+.hero-figure img{display:block;width:100%;height:auto;border:1px solid var(--border);border-radius:8px;background:#fff}
+.hero-figure figcaption{margin:12px auto 0;max-width:78ch;font-size:.875rem;line-height:1.6;color:#64748b}
+@media(max-width:640px){.hero-figure{margin-bottom:22px}.hero-figure figcaption{font-size:.8125rem}}
+.hero-figure a{display:block;border-radius:8px}
+.hero-figure a:focus-visible{outline:2px solid var(--blue);outline-offset:3px}

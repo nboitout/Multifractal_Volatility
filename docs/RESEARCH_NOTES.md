@@ -2,6 +2,21 @@
 
 An interactive reconstruction based on Chapter 1 supplied by Nicolas Boitout and the publication by Nicolas Boitout and Loredana Ureche-Rangau, *Towards a Multifractal Paradigm of Stochastic Volatility?*, IJTAF 7(7), 823–851 (2004), DOI 10.1142/S0219024904002736.
 
+## The opening figure
+
+`docs/From Turbulence to Multifractal Volatility.png` is reproduced above the laboratory,
+outside the tab strip, so it is the first thing a reader meets and stays in view whichever
+analysis is selected. It states the analogy the chapter rests on: a multiplicative cascade
+carries energy from large scales to small ones in turbulence, and the same construction in
+time produces volatility clustering across horizons. Its own footer records the limit of
+the analogy, that the statistical geometry transfers and the physical mechanism does not.
+
+The deployed copy lives in `dist/figures/` because only `dist` is served. It is 1.49 MB
+and above the fold, so it loads eagerly with its dimensions declared to avoid reflow, and
+links to itself at full size for readers on narrow screens where the panel labels are too
+small to read. Lossless recompression was tried and returned four per cent, so the file is
+served as supplied.
+
 ## Scope and provenance
 
 The source supplied for implementation is the reconstructed Word chapter `multifractal_volatility_article(1).docx`, not the original scanned publication or Datastream observations. Original Table 1.4 is transcribed as reported. It is never recomputed or presented as simulator output.
