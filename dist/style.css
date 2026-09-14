@@ -58,3 +58,111 @@
 @media(max-width:640px){.hero-figure{margin-bottom:22px}.hero-figure figcaption{font-size:.8125rem}}
 .hero-figure a{display:block;border-radius:8px}
 .hero-figure a:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+
+/* The view strip.
+   It is the page's main navigation — everything in the workspace below is whichever
+   view is selected here — but it was reading as a caption. Three things were against
+   it. The intuition figure now fills the first screen, so the strip has moved a
+   thousand pixels down the page and is no longer met on arrival. It sat between two
+   heavier objects, the boxed steps of the argument above it and a section heading
+   below, so it carried the least weight in its own neighbourhood. And it followed the
+   argument list, which put the row of boxes where a reader looks for the navigation.
+
+   So: it comes first in the workspace, level with The experiment beside it, and
+   choosing a view is the first thing offered; it gets a surface of its own and a
+   selected pill instead of an underline, which reads as a control rather than a
+   label; it says what it is for; and it sticks to the top of the viewport, so that
+   wherever the reader has scrolled to inside a two-thousand-pixel laboratory, the way
+   to the other four views is in front of them. */
+
+.viewbar {
+  position: sticky;
+  top: 18px;   /* the offset the controls column beside it already sticks at */
+  z-index: 5;
+  display: flex;
+  align-items: stretch;
+  gap: 18px;
+  margin: 0 0 18px;
+  padding: 0 16px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 1px 3px #152b490d;
+  scroll-margin-top: 26px;
+}
+
+.viewbar-label {
+  flex: none;
+  display: flex;
+  align-items: center;
+  padding-right: 18px;
+  border-right: 1px solid var(--border);
+  font-size: .75rem;
+  letter-spacing: .105em;
+  font-weight: 750;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Pills are wider than the bare labels were, and the workspace is only about 690px
+   once the controls take their column, so the five of them stop fitting well before
+   the phone breakpoint the strip used to start scrolling at. It scrolls on its own
+   at any width instead, which needs min-width:0 — without it the flex item refuses
+   to shrink below its content and pushes the whole page sideways. */
+.viewbar .tabs {
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+  min-height: 54px;
+  padding: 0 4px;          /* slack so the end pills' focus rings are not clipped */
+  border-bottom: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.viewbar .tabs::-webkit-scrollbar { display: none; }
+.viewbar .tabs > button { flex: 0 0 auto; }
+
+/* A pill, not an underline: inside a bordered bar an underline has no rail to sit on,
+   and the selected view should look chosen rather than merely current. */
+.viewbar .tabs button {
+  margin: 0;
+  padding: 8px 13px;
+  border: 0;
+  border-radius: 7px;
+  color: var(--ink);
+  font-weight: 600;
+}
+.viewbar .tabs button:hover { background: var(--soft); color: var(--blue); }
+.viewbar .tabs button[aria-selected=true] {
+  background: var(--blue);
+  color: #fff;
+  border: 0;
+}
+.viewbar .tabs button[aria-selected=true]:hover { background: #1c49b0; color: #fff; }
+
+@media (max-width: 1100px) {
+  /* The instruction is the first thing to go: from here down the controls column and
+     the five views are both squeezed, and the label costs the tabs about 140px they
+     need more. It is taken out of the flow rather than removed, because it is also
+     the tablist's accessible name. */
+  .viewbar-label {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; border: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap;
+  }
+  .viewbar { padding: 0 8px; gap: 0; }
+  /* Tighter pills too: at 880px the workspace is at its narrowest, and these twenty
+     pixels are the difference between the five views fitting and the strip having to
+     scroll. Below the phone breakpoint it scrolls anyway, as it always has. */
+  .viewbar .tabs { min-height: 50px; gap: 6px; }
+  .viewbar .tabs button { padding: 8px 10px; }
+}
+
+/* The way into the laboratory from the first screen, which the figure now fills. */
+.intro-cta { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+.intro-cta a { font-weight: 650; text-decoration: none; border-bottom: 2px solid #c3d6ff; padding-bottom: 2px; }
+.intro-cta a:hover { border-bottom-color: var(--blue); }
+.intro-cta-note { font-size: .8125rem; color: var(--muted); }

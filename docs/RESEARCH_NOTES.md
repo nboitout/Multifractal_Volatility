@@ -27,6 +27,33 @@ cap stops applying and the figure is as wide as the page, as it was before. It s
 left rather than centring in the width it gives up, so that its edge is the one the
 running head, the title and the controls column already share.
 
+## The view strip
+
+The five views are the page's navigation: everything in the workspace is whichever one
+is selected. As underlined text between the boxed steps of the argument above it and a
+section heading below, the strip carried the least weight in its own neighbourhood, and
+the opening figure had pushed it about a thousand pixels down the page, so it was no
+longer met on arrival. Four changes, and none of them touch what the tabs do:
+
+- it comes first in the workspace, level with *The experiment* beside it, so choosing a
+  view is the first thing the laboratory offers rather than something found after the
+  argument list;
+- it has a surface of its own — white, bordered, the same card treatment as the controls
+  and the charts — and the selected view is a filled pill rather than an underline, which
+  reads as a control rather than a label;
+- it says what it is for (`Choose a view`), which is also the tablist's accessible name,
+  so it is taken out of the flow rather than removed when there is no room for it;
+- it sticks to the top of the viewport, at the offset the controls column already sticks
+  at, so the other four views stay in reach anywhere in a two-thousand-pixel laboratory.
+
+The masthead gained a matching link, `Open the laboratory`, because the figure now fills
+the first screen on a laptop and nothing else said there was a laboratory below it.
+
+Pills are wider than bare labels, and the workspace is only about 690px once the controls
+have their column, so the strip scrolls horizontally on its own whenever the five views do
+not fit — which needs `min-width: 0` on it, or the row refuses to shrink and pushes the
+whole page sideways instead.
+
 ## Scope and provenance
 
 The source supplied for implementation is the reconstructed Word chapter `multifractal_volatility_article(1).docx`, not the original scanned publication or Datastream observations. Original Table 1.4 is transcribed as reported. It is never recomputed or presented as simulator output.
