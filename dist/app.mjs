@@ -1,20 +1,13 @@
 import {DEFAULTS,validateParams,simulate,stats,aggregate,acf,crossScale,scaling,ORIGINAL_POWERS,ORIGINAL_VOL,ORIGINAL_VOLUME} from './model.mjs';
 const $=id=>document.getElementById(id);
-const BLUE='#245ad6',GRAY='#98a5b9',TEAL='#087c80',PURPLE='#6b46c1';
+const BLUE='#245ad6',GRAY='#98a5b9',TEAL='#087c80';
 let params={...DEFAULTS},activeTab='flow',logDensity=false,simulation=null,analysis=null,lastSimulationKey='',pending=0;
-// Measured series are precomputed offline by scripts/derive.mjs and served as static
-// JSON. The browser never estimates them, so the deployment stays static and the
-// research store stays off the interactive path.
-let manifest=null,curves=null,curvesFor='',dataState='idle',dataMessage='',measuredVariant='clean';
 const ARGUMENT={
   flow:{steps:[1],note:'Step 1 — the assumption the rest of the chapter rests on.'},
   returns:{steps:[1],note:'Step 1, continued — the first consequence of letting information intensity vary.'},
   memory:{steps:[2,3],note:'Steps 2 and 3 — persistence, and how it changes with the power measured and across scales.'},
   scaling:{steps:[4],note:'Step 4 — behaviour that changes with the observation horizon.'},
-  measured:{steps:[],note:'Evidence — the chapter’s estimator applied to a new series, read against the argument above.'},
   chapter:{steps:[],note:'Evidence — the original Alcatel results, exactly as reported.'}};
-const VARIANT_LABELS={asis:'as supplied, consecutive trading observations',raw:'no corrections applied',degapped:'overnight and weekend returns dropped',clean:'gaps dropped and deseasonalised'};
-const VARIANT_OPTIONS={asis:'As supplied — consecutive trading observations',raw:'No corrections',degapped:'Gaps dropped only',clean:'Gaps dropped and deseasonalised'};
 const pretty=(n,d=2)=>Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
 const short=n=>Math.abs(n)>=1000?Number(n).toLocaleString('en-US',{maximumFractionDigits:0}):Math.abs(n)>=10?pretty(n,1):Math.abs(n)>=.01||n===0?pretty(n,2):n.toExponential(1);
 const escape=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
@@ -84,99 +77,15 @@ function flow(){
     ?'Information intensity is constant in this configuration, so the two lines are the same series. Raise the intermittency, or set the return process to the lognormal cascade, to separate them.'
     :`Both lines use the same Gaussian draws Z<sub>t</sub> from seed ${params.seed}. Only K<sub>t</sub> differs. Where the blue line is larger the shocks are not larger; more information arrived. That alone lifts excess kurtosis from ${pretty(constant.excess)} to ${pretty(varying.excess)} without altering the distribution of Z<sub>t</sub>.`;
 }
-const resolutionLabel=m=>m>=1440?(m===1440?'daily':m/1440+'-day'):m+'-minute';
-const perObservation=m=>m>=1440?(m===1440?'Per trading day':'Per '+m/1440+'-day observation'):'Per '+m+'-minute observation';
-function measuredSummary(){if(!curves)return dataState==='loading'?'Loading measured series':'No measured series derived yet';const v=curves.variants[measuredVariant],p=curves.provenance;return `${p.label} · ${resolutionLabel(p.resolutionMin)} · ${p.from} to ${p.to} · ${v.n.toLocaleString('en-US')} returns`;}
-async function loadManifest(){
-  try{const response=await fetch('./data/manifest.json',{cache:'no-cache'});if(!response.ok)throw Error('HTTP '+response.status);
-    manifest=await response.json();const list=manifest?.datasets??[];
-    if(list.length){$('measured-asset').innerHTML=list.map(d=>`<option value="${escape(d.symbol)}">${escape(d.label)}</option>`).join('');return loadCurves(list[0].symbol);}
-    dataState='empty';
-  }catch{dataState='empty';}
-  render();
-}
-async function loadCurves(symbol){
-  const entry=(manifest?.datasets??[]).find(d=>d.symbol===symbol);
-  if(!entry){dataState='empty';render();return;}
-  dataState='loading';curvesFor=symbol;render();
-  try{const response=await fetch('./data/'+entry.file,{cache:'no-cache'});if(!response.ok)throw Error('HTTP '+response.status);
-    const payload=await response.json();
-    if(payload.schema!==2)throw Error('unsupported payload version '+payload.schema);
-    curves=payload;measuredVariant=payload.defaultVariant??Object.keys(payload.variants)[0];dataState='ready';dataMessage=measuredSummary();
-  }catch(error){curves=null;dataState='error';dataMessage='Could not load '+entry.file+': '+error.message;}
-  render();
-}
-function measured(){
-  if(dataState==='idle'){dataState='loading';loadManifest();}
-  const ready=dataState==='ready'&&curves;
-  $('measured-body').hidden=!ready;$('measured-status').hidden=!!ready;
-  document.querySelector('.measured-controls').hidden=dataState!=='ready';
-  if(!ready){$('measured-notice').innerHTML='';
-    $('measured-status').innerHTML=dataState==='loading'?'Loading measured series&hellip;':dataState==='error'?escape(dataMessage)
-      :'No derived series yet. Populate the research store with <code>npm run ingest</code>, then build the curves with <code>npm run derive</code>. To review this view against a labelled placeholder first, run <code>npm run derive:fixture</code>.';
-    return;}
-  const p=curves.provenance,diag=curves.diagnostics;
-  const keys=Object.keys(curves.variants);
-  if(!keys.includes(measuredVariant))measuredVariant=curves.defaultVariant??keys[0];
-  const select=$('measured-variant');
-  const wanted=keys.map(k=>`<option value="${k}">${escape(VARIANT_OPTIONS[k]??k)}</option>`).join('');
-  if(select.innerHTML!==wanted)select.innerHTML=wanted;
-  select.value=measuredVariant;select.disabled=keys.length<2;
-  $('measured-variant-help').textContent=keys.length<2
-    ?'This series is daily. Consecutive trading days are the chapter’s own convention, so there is no overnight bar to drop and no time-of-day profile to divide out.'
-    :'Overnight bars and the intraday volatility profile both bias these estimates. Switch to see by how much.';
-  const v=curves.variants[measuredVariant];
-  $('measured-notice').innerHTML=p.kind==='fixture'
-    ?'<div class="notice"><strong>Fixture, not a measurement</strong>This series is synthetic, generated by <code>scripts/derive.mjs --fixture</code> so that the view can be reviewed before the backfill has run. Every number below is a placeholder. None of it is measured from a market, and none of it should be read against the reported table except to confirm that the comparison renders.</div>'
-    :'';
-  $('measured-asset-help').textContent=p.source+(p.adjusted===null?'':p.adjusted?' · split adjusted':' · unadjusted')+(p.quantity&&p.quantity!=='price'?' · '+p.quantity:'');
-  $('measured-metrics').innerHTML=[
-    ['Returns used',v.n.toLocaleString('en-US'),VARIANT_LABELS[measuredVariant]],
-    diag.intraday?['Gaps dropped',diag.gapsDropped.toLocaleString('en-US'),'Session boundaries, holidays and halts']
-              :['Observations',diag.barsLoaded.toLocaleString('en-US'),'Trading days in the sample'],
-    ['Bandwidth m',String(v.bandwidth),'Fourier frequencies in the fit'],
-    ['Return volatility',pretty(v.summary.sd,3)+'%',perObservation(p.resolutionMin)],
-  ].map(([label,value,note])=>`<div class="metric"><p class="metric-label">${label}</p><p class="metric-value">${value}</p><p class="metric-note">${note}</p></div>`).join('');
-  const band=k=>v.d.map(pt=>({x:pt.x,y:pt.y+k*2*pt.se}));
-  chart('measured-d-chart',[
-    {data:v.d.map(pt=>({x:pt.x,y:pt.y})),color:PURPLE,dots:true,name:'Measured d'},
-    {data:band(1),color:GRAY,dash:true,reference:true},{data:band(-1),color:GRAY,dash:true,reference:true},
-    {data:ORIGINAL_POWERS.map((x,i)=>({x,y:ORIGINAL_VOL[i]})),color:BLUE,dots:true,reference:true},
-    {data:ORIGINAL_POWERS.map((x,i)=>({x,y:ORIGINAL_VOLUME[i]})),color:TEAL,dots:true,reference:true},
-  ],{xmin:0,xmax:4,xticks:[0,1,2,3,4],xlabel:'Power q',ylabel:'Fractional dependence d̂',label:'Measured fractional-dependence estimates across power transformations, shown against the reported chapter table'});
-  $('measured-fit').textContent='GPH · m = '+v.bandwidth;
-  $('measured-d-note').innerHTML=`Preprocessing: ${VARIANT_LABELS[measuredVariant]}. The band is two asymptotic standard errors, &plusmn;${pretty(2*v.d[0].se,3)}. The regression&rsquo;s R&sup2; is not a useful diagnostic for this estimator, because log-periodogram errors are log-&chi;&sup2; distributed, so a confidence band is reported instead. The reported Alcatel series are transcribed constants at daily frequency on a different instrument and period; they are drawn here for reference, not as a target.`
-    +(p.note?` <strong>${escape(p.note)}</strong>`:'');
-  chart('measured-zeta-chart',[
-    {data:v.zeta,color:PURPLE,dots:true,name:'ζ(q)'},
-    {data:[{x:0,y:0},{x:4,y:2}],color:GRAY,dash:true,reference:true},
-  ],{xmin:0,xmax:4,xticks:[0,1,2,3,4],xlabel:'Moment order q',ylabel:'Scaling exponent ζ(q)',label:'Measured scaling exponents across moment orders, against the Gaussian q over two reference'});
-  const scales=v.structure[7]?.scales??[];
-  $('measured-scales').textContent=scales.length?`${scales.length} scales · k = 1 to ${scales.at(-1)}`:'';
-  chart('measured-acf-chart',v.acf.map((a,i)=>({data:a.points,color:[PURPLE,BLUE,TEAL][i],name:'q = '+a.q})),
-    {xmin:1,xmax:v.acf[0]?.points.length??1,ymin:-.1,ymax:1,xlabel:'Lag (observations)',ylabel:'Correlation',xformat:x=>String(Math.round(x)),label:'Autocorrelation of absolute returns at three power transformations'});
-  $('measured-provenance').innerHTML=[
-    ['Series',p.label],['Symbol',p.symbol],['Source',p.source],
-    ['Nature',p.kind==='fixture'?'synthetic placeholder':'measured observations'],
-    ['Resolution',resolutionLabel(p.resolutionMin)],['Window',p.from+' to '+p.to],
-    ['Bars loaded',diag.barsLoaded.toLocaleString('en-US')],['Returns used',v.n.toLocaleString('en-US')],
-    ['Gaps dropped',diag.gapsDropped.toLocaleString('en-US')],['Time-of-day buckets',String(diag.buckets)],
-    ['Quantity',p.quantity??'price'],
-    ['Adjustment',p.adjusted===null?'not applicable':p.adjusted?'split adjusted':'unadjusted'],
-    ['Derived at',String(p.generatedAt).slice(0,16).replace('T',' ')+' UTC'],
-  ].map(([k,val])=>`<div><dt>${escape(k)}</dt><dd>${escape(val)}</dd></div>`).join('');
-}
-function syncControls(){for(const k of Object.keys(DEFAULTS)){if($(k).value!==String(params[k]))$(k).value=String(params[k]);}for(const k of ['lambda','depth','sigma','power'])$(k+'-value').textContent=k==='lambda'?pretty(params[k],3):k==='sigma'?pretty(params[k])+'%':k==='depth'?String(params[k]):pretty(params[k]);const simulationActive=!['measured','chapter'].includes(activeTab);$('controls-inactive').hidden=simulationActive;const argument=ARGUMENT[activeTab]??{steps:[],note:''};for(const item of $('argument').children)item.classList.toggle('active',argument.steps.includes(Number(item.dataset.step)));$('argument-note').textContent=argument.note;for(const key of Object.keys(DEFAULTS))$(key).disabled=!simulationActive||(key==='lambda'&&params.model==='gaussian');$('new-seed').disabled=$('reset').disabled=!simulationActive;$('sample-help').textContent=(2**params.depth).toLocaleString('en-US')+' simulated observations · 2^'+params.depth;$('model-help').textContent=params.model==='cascade'?'Gaussian shocks multiplied by a volatility cascade.':'Independent Gaussian returns with constant volatility.';$('formula').innerHTML=params.model==='cascade'?'r<sub>t</sub> = σ<sub>t</sub> Z<sub>t</sub><br><span>σ<sub>t</sub> = σ₀ ∏ W<sub>j,t</sub></span>':'r<sub>t</sub> = σ₀ Z<sub>t</sub><br><span>Z<sub>t</sub> ∼ N(0, 1)</span>';const measuredKind=curves?.provenance?.kind,state=activeTab==='chapter'?'historical':activeTab!=='measured'?'simulated':measuredKind==='fixture'?'fixture':measuredKind==='measured'?'measured':'simulated';$('experiment-summary').textContent=state==='historical'?'Alcatel · 1991–2001 · reported values':activeTab==='measured'?measuredSummary():(params.model==='cascade'?'Lognormal cascade':'Gaussian benchmark')+' · '+(2**params.depth).toLocaleString('en-US')+' observations · seed '+params.seed;$('data-tag').textContent={historical:'ORIGINAL RESULTS',fixture:'FIXTURE DATA',measured:'MEASURED DATA',simulated:'SIMULATED DATA'}[state];for(const s of ['historical','measured','fixture'])$('data-tag').classList.toggle(s,state===s);}
-function render(){syncControls();const key=JSON.stringify([params.model,params.lambda,params.depth,params.sigma,params.seed]);if(key!==lastSimulationKey){simulation=simulate(params);lastSimulationKey=key;}if(activeTab==='flow')flow();else if(activeTab==='returns')distribution();else if(activeTab==='memory')memory();else if(activeTab==='scaling')multiscaling();else if(activeTab==='measured')measured();else historical();$('live-status').textContent='Updated '+activeTab+' view. '+(activeTab==='measured'?dataMessage||'Measured series.':activeTab==='chapter'?'Reported values from the original table.':(2**params.depth)+' observations, seed '+params.seed+'.');}
+function syncControls(){for(const k of Object.keys(DEFAULTS)){if($(k).value!==String(params[k]))$(k).value=String(params[k]);}for(const k of ['lambda','depth','sigma','power'])$(k+'-value').textContent=k==='lambda'?pretty(params[k],3):k==='sigma'?pretty(params[k])+'%':k==='depth'?String(params[k]):pretty(params[k]);const simulationActive=activeTab!=='chapter';$('controls-inactive').hidden=simulationActive;const argument=ARGUMENT[activeTab]??{steps:[],note:''};for(const item of $('argument').children)item.classList.toggle('active',argument.steps.includes(Number(item.dataset.step)));$('argument-note').textContent=argument.note;for(const key of Object.keys(DEFAULTS))$(key).disabled=!simulationActive||(key==='lambda'&&params.model==='gaussian');$('new-seed').disabled=$('reset').disabled=!simulationActive;$('sample-help').textContent=(2**params.depth).toLocaleString('en-US')+' simulated observations · 2^'+params.depth;$('model-help').textContent=params.model==='cascade'?'Gaussian shocks multiplied by a volatility cascade.':'Independent Gaussian returns with constant volatility.';$('formula').innerHTML=params.model==='cascade'?'r<sub>t</sub> = σ<sub>t</sub> Z<sub>t</sub><br><span>σ<sub>t</sub> = σ₀ ∏ W<sub>j,t</sub></span>':'r<sub>t</sub> = σ₀ Z<sub>t</sub><br><span>Z<sub>t</sub> ∼ N(0, 1)</span>';const state=activeTab==='chapter'?'historical':'simulated';$('experiment-summary').textContent=state==='historical'?'Alcatel · 1991–2001 · reported values':(params.model==='cascade'?'Lognormal cascade':'Gaussian benchmark')+' · '+(2**params.depth).toLocaleString('en-US')+' observations · seed '+params.seed;$('data-tag').textContent={historical:'ORIGINAL RESULTS',simulated:'SIMULATED DATA'}[state];$('data-tag').classList.toggle('historical',state==='historical');}
+function render(){syncControls();const key=JSON.stringify([params.model,params.lambda,params.depth,params.sigma,params.seed]);if(key!==lastSimulationKey){simulation=simulate(params);lastSimulationKey=key;}if(activeTab==='flow')flow();else if(activeTab==='returns')distribution();else if(activeTab==='memory')memory();else if(activeTab==='scaling')multiscaling();else historical();$('live-status').textContent='Updated '+activeTab+' view. '+(activeTab==='chapter'?'Reported values from the original table.':(2**params.depth)+' observations, seed '+params.seed+'.');}
 function update(input){const candidate=validateParams({...params,...input});params=candidate;clearTimeout(pending);$('error').hidden=true;render();return {parameters:{...params},view:activeTab,statistics:stats(aggregate(simulation.returns,params.horizon))};}
-function setTab(tab){if(!['flow','returns','memory','scaling','measured','chapter'].includes(tab))throw Error('Unknown view.');activeTab=tab;for(const t of document.querySelectorAll('[role=tab]')){const selected=t.dataset.tab===tab;t.setAttribute('aria-selected',String(selected));t.tabIndex=selected?0:-1;$('panel-'+t.dataset.tab).hidden=!selected;}render();}
+function setTab(tab){if(!['flow','returns','memory','scaling','chapter'].includes(tab))throw Error('Unknown view.');activeTab=tab;for(const t of document.querySelectorAll('[role=tab]')){const selected=t.dataset.tab===tab;t.setAttribute('aria-selected',String(selected));t.tabIndex=selected?0:-1;$('panel-'+t.dataset.tab).hidden=!selected;}render();}
 for(const k of Object.keys(DEFAULTS))$(k).addEventListener(k==='seed'?'change':'input',()=>{try{const raw=$(k).value;if(raw.trim()==='')throw Error('Enter a seed between 0 and 999999.');const value=k==='model'?raw:Number(raw);update({[k]:value});}catch(error){$('error').textContent=error.message;$('error').hidden=false;}});
 $('new-seed').addEventListener('click',()=>{const draw=new Uint32Array(1);crypto.getRandomValues(draw);update({seed:draw[0]%1000000});});
 $('reset').addEventListener('click',()=>{logDensity=false;$('log-density').checked=false;update({...DEFAULTS});});
 $('log-density').addEventListener('change',()=>{logDensity=$('log-density').checked;distribution();});
 for(const tab of document.querySelectorAll('[role=tab]')){tab.addEventListener('click',()=>setTab(tab.dataset.tab));tab.addEventListener('keydown',e=>{const all=[...document.querySelectorAll('[role=tab]')],i=all.indexOf(tab);let index;if(e.key==='ArrowRight')index=(i+1)%all.length;else if(e.key==='ArrowLeft')index=(i+all.length-1)%all.length;else if(e.key==='Home')index=0;else if(e.key==='End')index=all.length-1;else return;e.preventDefault();all[index].focus();setTab(all[index].dataset.tab);});}
-$('measured-asset').addEventListener('change',()=>loadCurves($('measured-asset').value));
-$('measured-variant').addEventListener('change',()=>{measuredVariant=$('measured-variant').value;render();});
 let resizeTimer;window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(render,120);});
 render();
 // Structured access uses the same validation and state transitions as the UI.

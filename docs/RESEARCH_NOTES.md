@@ -14,51 +14,20 @@ The simulation implements a finite dyadic lognormal realization of the chapter's
 
 No modern rough-volatility model, synthetic trading volume, data import, or export is included. Original volume findings remain a historical reference, and no Chapter 2 integration is implemented.
 
+Measured market series are not part of this laboratory. They are Chapter 3's subject and live in [`PhD_Empirical_Study`](https://github.com/nboitout/PhD_Empirical_Study), together with the long-memory estimators, the derivation pipeline and its notes. That chapter draws Table 1.4 from here as its reference curve; the transcription is checked in both repositories so they cannot drift apart silently.
+
 ## Narrative order
 
 The views follow the chapter's argument rather than the order in which results are
 easiest to plot. Information flow states the Mixture of Distributions premise first;
 Returns, Memory and Scaling then present its consequences in the chapter's sequence;
-the two data views carry the evidence. A numbered rail names the four claims and
-marks which one each view serves.
+Original chapter carries the evidence, as reported. A numbered rail names the four
+claims and marks which one each view serves.
 
 The Information flow view plots the benchmark series that `simulate` has always
 returned and the interface never displayed. Because the Gaussian shocks are shared
 across models at a fixed seed, the two lines there differ in K alone, which is what
 makes the mixture visible rather than merely asserted.
-
-## Applicability of the corrections
-
-Overnight-gap removal and deseasonalisation are properties of an intraday sample, not
-of the pipeline. A daily series has no bar spanning a market close, because consecutive
-trading days are the chapter's own convention, and no time-of-day profile to estimate.
-The payload therefore declares which corrections apply and the view offers only those.
-Applying the intraday filter to a daily sample would discard every observation after a
-weekend, a fifth of the sample and systematically the Mondays.
-
-The ten-year daily series carry roughly 2,600 observations each, which puts them close
-to the chapter's own 2,633 Alcatel returns and gives the same estimator bandwidth.
-
-DGS10 is a yield in per cent. It passes through the same transformation as the price
-series, so its values are log-changes of a yield rather than returns in the chapter's
-sense, and every view that shows it says so.
-
-## Measured series
-
-Five daily series span 14 September 2016 to September 2026, imported from the supplied
-spreadsheet: Microsoft, Bitcoin, EUR/USD, the US ten-year Treasury yield and Brent crude.
-Each carries between 2,496 and 3,653 observations, so the estimator runs at bandwidths of
-49 to 60 against the chapter's 51 on 2,633 Alcatel returns. The estimation setup is
-therefore close to the original even though the instruments and period are not.
-
-The source quotes EUR/USD on Saturdays and Sundays, when the foreign-exchange market is
-closed, and two in five Saturday quotes repeat the Friday. Those 1,032 observations are
-excluded, which leaves 2,606 consecutive trading days with a single repeated value. The
-exclusion is declared per series in the importer and reported in the view, not applied
-quietly. Bitcoin genuinely trades every day and is kept whole.
-
-The spreadsheet itself is not committed. It is the user's own export of third-party
-market data, and the derived curves are the deliverable.
 
 ## Numerical specification
 

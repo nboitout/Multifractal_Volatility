@@ -1,8 +1,10 @@
 # Multifractal Volatility Lab
 
-Complete source for Nicolas Boitout's Chapter 1 research laboratory, prepared for a new GitHub repository and deployment on Vercel.
+Complete source for Nicolas Boitout's Chapter 1 research laboratory: the cascade simulator, and the original Alcatel study the chapter reports.
 
-The application uses plain HTML, CSS and JavaScript modules. There are no framework dependencies, no compilation step and no API keys in the deployed application. The offline data scripts under `scripts/` are separate: they read credentials from a local `.env` and never ship to `dist`. The four application files and the numerical checks are identical to the published source at commit `8c7dff5e9eea7de3302139741368deed7bd8b131`. This handover adds Vercel configuration, npm convenience commands and documentation. The previous host's project identifiers, credentials and Git history are not included.
+The application uses plain HTML, CSS and JavaScript modules. There are no dependencies, no compilation step, no API keys and no network requests at run time.
+
+Measured market data is not here. Chapter 3 runs these same estimators over ten years of modern series, in [`PhD_Empirical_Study`](https://github.com/nboitout/PhD_Empirical_Study); it draws this chapter's Table 1.4 as its reference curve and never recomputes it. What stays here is the historical data: Alcatel, 1 January 1991 to 31 December 2001, exactly as reported.
 
 ## Files
 
@@ -11,21 +13,12 @@ The application uses plain HTML, CSS and JavaScript modules. There are no framew
 | `dist/index.html` | Page structure, the chapter's argument rail, controls and model assumptions |
 | `dist/style.css` | Responsive layout and visual design |
 | `dist/app.mjs` | Interface state, chart rendering and interaction handlers |
-| `dist/model.mjs` | Seeded cascade simulation, statistics, autocorrelations and scaling calculations |
-| `dist/longmemory.mjs` | Periodogram, GPH and local Whittle estimation of the chapter's d(q) |
-| `dist/empirical.mjs` | Bars to returns, overnight-gap and seasonality corrections, extended scaling |
-| `dist/data/` | Precomputed curves the Measured view reads, plus their manifest |
+| `dist/model.mjs` | Seeded cascade simulation, statistics, autocorrelations, scaling, and Table 1.4 as reported |
+| `dist/chapter/` | The chapter's figures, as supplied |
 | `verify.mjs` | Numerical checks and original-table transcription checks |
 | `vercel.json` | Static deployment configuration |
-| `package.json` | `npm test` and `npm run check`; `pg` is a devDependency used only by the offline scripts |
-| `scripts/schema.sql` | Research-store schema for five-minute bars |
-| `scripts/ingest.mjs` | Offline backfill from Polygon into the research store |
-| `scripts/derive.mjs` | Turns stored bars into the precomputed curves, or a labelled fixture |
-| `scripts/import-sheet.mjs` | Imports the daily market-data spreadsheet into the same curves |
-| `scripts/manifest.mjs` | Rebuilds the dataset index from whatever curve files exist |
-| `.env.example` | Template for the credentials the scripts read |
+| `package.json` | `npm test` and `npm run check`; no dependencies |
 | `docs/RESEARCH_NOTES.md` | Research provenance and numerical definitions |
-| `docs/POLYGON_INTEGRATION.md` | Market data design: architecture, corrections and staging |
 
 The files in `dist` are the editable application source, not generated bundles. Keep them under version control.
 
@@ -45,7 +38,7 @@ With Node.js installed, run:
 node verify.mjs
 ```
 
-Or use `npm test` and `npm run check`. No `npm install` is needed for the current dependency-free code.
+Or use `npm test` and `npm run check`. There is nothing to install.
 
 ## Put the project on GitHub
 
@@ -86,40 +79,8 @@ Check the new deployment's access settings before sharing it: access restriction
 
 The simulator illustrates the chapter's finite multiplicative-cascade framework. Its implementation choices are documented on the page. It is not calibrated to the original Alcatel dataset. The original Table 1.4 is a separate historical transcription.
 
-Keep that distinction when extending the lab. Market data is a new empirical experiment, not a reproduction: it matches neither the original instrument nor its observation period or preprocessing. See [the integration notes](docs/POLYGON_INTEGRATION.md).
-
-## Market data
-
-The research store holds five-minute bars and is populated offline. It is not
-part of the deployed application and the browser never queries it.
-
-```sh
-cp .env.example .env      # then fill in POLYGON_API_KEY and DATABASE_URL
-npm install               # pulls pg, used only by the scripts
-npm run ingest:init       # create the schema and register the assets
-npm run ingest            # backfill; resumable, roughly 75 rate-limited requests
-npm run ingest:status     # what has been ingested so far
-npm run derive            # build dist/data/*.curves.json from the store
-npm run import -- --csv sources/daily-market-data.csv   # or from the daily spreadsheet
-```
-
-The spreadsheet holds several series side by side, each with its own Date column and
-its own trading calendar, so rows do not line up across blocks and are never read
-across. Which corrections apply is a property of the series: a daily series has no
-overnight bar to drop and no time-of-day profile to divide out, so it is served as
-supplied. Applying the intraday filter to daily data would discard every observation
-following a weekend, about a fifth of the sample.
-
-The Measured view reads those derived files and nothing else, so the deployed
-site stays static and never queries the database. To review the view before any
-real data exists, `npm run derive:fixture` writes a synthetic placeholder that is
-labelled as such everywhere it appears.
-
-The backfill records progress per asset-month and skips completed months, so it
-can be interrupted and restarted at no cost. Overnight, weekend and holiday
-boundaries are flagged at load time as `bar.gap_min`; excluding them is a query
-filter, and doing so is required before any estimate is reported.
+Keep that distinction when extending the lab. Measuring a modern series is a new empirical experiment, not a reproduction — it matches neither the original instrument nor its observation period or preprocessing — which is why it is [Chapter 3](https://github.com/nboitout/PhD_Empirical_Study) rather than another tab here.
 
 ## Validation
 
-The source package retains the numerical checks for reproducibility, the exact Gaussian limit at zero intermittency, aggregation, Gaussian moments and scaling, parameter boundaries and historical-table entries. The package's application files have been checked against the published source. No browser QA or live Polygon API test was performed for this handover.
+`node verify.mjs` checks reproducibility, the exact Gaussian limit at zero intermittency, aggregation, Gaussian moments and scaling, parameter boundaries and the historical-table entries. No browser QA was performed.
