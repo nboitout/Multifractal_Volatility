@@ -14,13 +14,19 @@ Measured market data is not here. Chapter 3 runs these same estimators over ten 
 | `dist/style.css` | Responsive layout and visual design |
 | `dist/app.mjs` | Interface state, chart rendering and interaction handlers |
 | `dist/model.mjs` | Seeded cascade simulation, its per-level multipliers, statistics, autocorrelations, scaling, and Table 1.4 as reported |
-| `dist/chapter/` | The chapter's figures, as supplied |
+| `dist/chapter/` | The chapter's figures, as supplied, plus the redrawn Figure 1.4 |
+| `scripts/figure-1-4.mjs` | Regenerates `dist/chapter/figure-1-4.svg` from its traced points |
 | `verify.mjs` | Numerical checks and original-table transcription checks |
 | `vercel.json` | Static deployment configuration |
 | `package.json` | `npm test` and `npm run check`; no dependencies |
 | `docs/RESEARCH_NOTES.md` | Research provenance and numerical definitions |
 
 The files in `dist` are the editable application source, not generated bundles. Keep them under version control.
+
+One asset is generated: `dist/chapter/figure-1-4.svg`, the chapter's Figure 1.4. The supplied reconstruction had no
+plate for it and reused the Figure 1.2 image, so it is redrawn from a photograph of the printed page. Its points are
+traced by eye, not recomputed from data, which the figure's caption states. To correct a point, edit the arrays in
+`scripts/figure-1-4.mjs` and run `node scripts/figure-1-4.mjs`.
 
 ## Run locally
 
