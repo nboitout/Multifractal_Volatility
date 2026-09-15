@@ -70,20 +70,25 @@ Measured market series are not part of this laboratory. They are Chapter 3's sub
 
 ## Narrative order
 
-The views follow the chapter's argument rather than the order in which results are
-easiest to plot. Information flow states the Mixture of Distributions premise first;
-Returns, Memory and Scaling then present its consequences in the chapter's sequence;
-Cascade turns back to the generator those consequences come from; Original chapter
+Cascade opens the laboratory, and the remaining views follow the chapter's argument:
+Information flow states the Mixture of Distributions premise, Returns, Memory and
+Scaling present its consequences in the chapter's sequence, and Original chapter
 carries the evidence, as reported. A numbered rail names the four claims and marks
 which one each view serves.
 
-Cascade sits after Scaling rather than beside Information flow because it belongs to
-the fourth claim, not the first: the reader meets the construction once multiscaling
-has given them a reason to want it. It draws the tree the simulation already walks —
-`simulate` now keeps the per-level multipliers it used to fold into the branch sum and
-discard — so the view shows the factors the other views' numbers were built from, not
-a second simulation. Levels applied stops the product partway down, which is the only
-control in the lab that isolates what an individual level contributes.
+Cascade leads on the strength of the controls rather than the argument. It was first
+placed after Scaling, where it belongs by the chapter's order — the construction is
+the fourth claim, not the first — but every control in the rail acts on the tree
+directly and on the other views only through it, so a visitor moving a slider was
+changing a picture on another tab. Landing on Cascade means the thing the controls
+build is the thing on screen. The cost is that the rail highlights the fourth claim on
+arrival, which the view's own introduction absorbs by saying what the later views do.
+
+The view draws the tree the simulation already walks: `simulate` keeps the per-level
+multipliers it used to fold into the branch sum and discard, so the picture shows the
+factors the other views' numbers were built from rather than a second simulation.
+Levels applied stops the product partway down, which is the only control in the lab
+that isolates what an individual level contributes.
 
 The Information flow view plots the benchmark series that `simulate` has always
 returned and the interface never displayed. Because the Gaussian shocks are shared

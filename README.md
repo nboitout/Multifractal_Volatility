@@ -77,11 +77,12 @@ Check the new deployment's access settings before sharing it: access restriction
 
 ## The views
 
-`Information flow` states the chapter's premise; `Returns`, `Memory` and `Scaling`
-follow its consequences in the chapter's own order; `Cascade` shows the generator they
-come from, one level per row with the horizon each level acts on, and lets the product
-be stopped partway down; `Original chapter` reproduces the chapter and its reported
-Table 1.4.
+`Cascade` opens the laboratory: the generator itself, one level per row with the
+horizon each level acts on, and the product stoppable partway down. It leads because
+the controls act on the tree directly and on everything else only through it.
+`Information flow` then states the chapter's premise; `Returns`, `Memory` and
+`Scaling` follow its consequences in the chapter's own order; `Original chapter`
+reproduces the chapter and its reported Table 1.4.
 
 `Cascade` draws the tree the simulation already walks. `simulate` keeps the per-level
 multipliers it draws rather than discarding them into the branch sum, and `verify.mjs`

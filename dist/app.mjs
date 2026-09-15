@@ -4,13 +4,13 @@ const BLUE='#245ad6',GRAY='#98a5b9',TEAL='#087c80';
 // A diverging ramp for the cascade view: a multiplier either damps or amplifies, and
 // W = 1 is a real midpoint rather than a low end, so one hue either side of a neutral.
 const RAMP=['#6f4206','#b8802f','#e8d3b4','#f1f4f9','#c2d2f1','#4276dd','#123a93'];
-let params={...DEFAULTS},activeTab='flow',logDensity=false,simulation=null,analysis=null,lastSimulationKey='',pending=0;
+let params={...DEFAULTS},activeTab='cascade',logDensity=false,simulation=null,analysis=null,lastSimulationKey='',pending=0;
 const ARGUMENT={
   flow:{steps:[1],note:'Step 1 — the assumption the rest of the chapter rests on.'},
   returns:{steps:[1],note:'Step 1, continued — the first consequence of letting information intensity vary.'},
   memory:{steps:[2,3],note:'Steps 2 and 3 — persistence, and how it changes with the power measured and across scales.'},
   scaling:{steps:[4],note:'Step 4 — behaviour that changes with the observation horizon.'},
-  cascade:{steps:[4],note:'Step 4, from the other side — the construction the multiscaling comes from.'},
+  cascade:{steps:[4],note:'Step 4, from the generator’s side — the construction the controls act on.'},
   chapter:{steps:[],note:'Evidence — the original Alcatel results, exactly as reported.'}};
 const pretty=(n,d=2)=>Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
 const short=n=>Math.abs(n)>=1000?Number(n).toLocaleString('en-US',{maximumFractionDigits:0}):Math.abs(n)>=10?pretty(n,1):Math.abs(n)>=.01||n===0?pretty(n,2):n.toExponential(1);
