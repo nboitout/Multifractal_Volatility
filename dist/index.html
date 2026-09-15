@@ -118,12 +118,12 @@
 <p>Information is multi-form. The temporal dimension of information flow is crucial whereas often neglected. Information about the business cycle and technological innovations affects volatility differently than information about current market liquidity. A complementary typology, discussed by Evans [2002], distinguishes common knowledge from non-common knowledge according to dispersion of interpretations. Common knowledge news is characterized by simultaneous arrival to all market participants and homogeneous interpretation of its implication for equilibrium prices. Public information can take either form because news may not lead to consensus. The common-knowledge case is a limit case in which price adjusts immediately without affecting trading volume.</p>
 <p>Private information is obviously non-common knowledge and can be especially relevant in decentralized markets such as foreign exchange, where customers’ order flow to a dealer is not publicly observable. As participants differ in trading horizons, private information is not limited to intraday horizons. The Hypothesis of Heterogeneous Market leads to MC-ARCH (Zumbach and Lynch [2001]) and stochastic cascade volatility models (Breymann et al. [2000]).</p>
 <h5 id="ch-1-3-2-what-does-volatility-mean-here">1.3.2 What does volatility mean here?</h5>
-<p>Whereas returns are uncorrelated, long-range correlations in the scale of price fluctuations suggest that an additional stochastic process characterizing price increments is required. Volatility is often referred to as this underlying process. For a volatility process σ_t predetermined and observable conditional on variables at t-1, its measure is identical to the conditional variance and volatility is conditionally heteroskedastic. If σ_t is influenced by a contemporaneous or unobserved stochastic vector, it is not predetermined and volatility is stochastic.</p>
-<p>Let the price process {S_t} be defined on a probability space (Ω,F,P) with filtration F_t containing full price history and potentially latent state variables. Volatility measures unexpected return fluctuations. Following Andersen [1992], volatility characterizes the complete structure of second-order conditional moments with respect to the relevant information sets.</p>
-<p class="math-line">σ(S_t,t) = [ lim_{h→0} (1/h) V((S_t/S_{t-h}) | F_{t-h}) ]^{1/2}</p>
-<p class="math-line">dS_t = μ(S_t,t) S_t dt + σ(S_t,t) S_t dW_t</p>
-<p class="math-line">X_t = σ_t Z_t</p>
-<p>Here W_t is a standard Wiener process and Z_t is an i.i.d. mean-zero, constant-variance sequence. σ_t represents the volatility process of the price innovation X_t and is directed by a latent stochastic process: information flow. Public and private information coexist, and models with many components at different horizons are promising for describing the complex structure of volatility and trading volume. HARCH, MC-ARCH, multi-component SARV and stochastic cascade models are three related modeling directions.</p>
+<p>Whereas returns are uncorrelated, long-range correlations in the scale of price fluctuations suggest that an additional stochastic process characterizing price increments is required. Volatility is often referred to as this underlying process. For a volatility process σ<sub><i>t</i></sub> predetermined and observable conditional on variables at <i>t</i>&thinsp;−&thinsp;1, its measure is identical to the conditional variance and volatility is conditionally heteroskedastic. If σ<sub><i>t</i></sub> is influenced by a contemporaneous or unobserved stochastic vector, it is not predetermined and volatility is stochastic.</p>
+<p>Let the price process {<i>S</i><sub><i>t</i></sub>} be defined on a probability space (Ω,&thinsp;ℱ,&thinsp;P) with filtration ℱ<sub><i>t</i></sub> containing full price history and potentially latent state variables. Volatility measures unexpected return fluctuations. Following Andersen [1992], volatility characterizes the complete structure of second-order conditional moments with respect to the relevant information sets.</p>
+<p class="math-line">σ(<i>S</i><sub><i>t</i></sub>,&thinsp;<i>t</i>) = [ lim<sub><i>h</i>→0</sub>&thinsp;(1/<i>h</i>)&thinsp;V(<i>S</i><sub><i>t</i></sub>/<i>S</i><sub><i>t</i>−<i>h</i></sub> | ℱ<sub><i>t</i>−<i>h</i></sub>) ]<sup>1/2</sup></p>
+<p class="math-line">d<i>S</i><sub><i>t</i></sub> = μ(<i>S</i><sub><i>t</i></sub>,&thinsp;<i>t</i>)&thinsp;<i>S</i><sub><i>t</i></sub>&thinsp;d<i>t</i> + σ(<i>S</i><sub><i>t</i></sub>,&thinsp;<i>t</i>)&thinsp;<i>S</i><sub><i>t</i></sub>&thinsp;d<i>W</i><sub><i>t</i></sub></p>
+<p class="math-line"><i>X</i><sub><i>t</i></sub> = σ<sub><i>t</i></sub>&thinsp;<i>Z</i><sub><i>t</i></sub></p>
+<p>Here <i>W</i><sub><i>t</i></sub> is a standard Wiener process and <i>Z</i><sub><i>t</i></sub> is an i.i.d. mean-zero, constant-variance sequence. σ<sub><i>t</i></sub> represents the volatility process of the price innovation <i>X</i><sub><i>t</i></sub> and is directed by a latent stochastic process: information flow. Public and private information coexist, and models with many components at different horizons are promising for describing the complex structure of volatility and trading volume. HARCH, MC-ARCH, multi-component SARV and stochastic cascade models are three related modeling directions.</p>
 <h5 id="ch-1-3-3-the-model">1.3.3 The model</h5>
 <p>This model relies on Andersen [1996] in bridging asymmetric-information models à la Glosten and Milgrom [1985] and stochastic volatility modeling. The Mixture of Distribution Hypothesis developed by Clark [1973] and Tauchen and Pitts [1983] is a unified framework articulating trading and econometric models of stochastic volatility. Information arrivals lead agents to revise expectations about terminal asset value and generate price fluctuations. Information is differently interpreted because traders have different private signals or &quot;agree to disagree&quot;. Trading appears for liquidity, asymmetric information and heterogeneous interpretations.</p>
 <h6 id="the-market">The market</h6>
@@ -134,45 +134,45 @@
 <p>Each information arrival generates a price-discovery phase followed by equilibrium. Noise/liquidity traders act for exogenous reasons such as hedging, stop-loss orders and liquidity needs, and may be trend chasers. Their presence circumvents the No-Trade theorem. Informed traders maximize expected profit conditionally on their signals. Each transaction affects the bid-ask spread; Bertrand competition forces the market maker to set prices under a zero-profit constraint. Transaction prices form a martingale with respect to the market maker’s information set, and inventory management does not matter by construction.</p>
 <h6 id="the-bivariate-process-of-volatility-and-">The bivariate process of volatility and trading volume</h6>
 <p>The MDH justifies introducing trading volume in volatility modeling. Total daily volume is the sum of noise-trader and informed-trader transaction volume:</p>
-<p class="math-line">V_t = NV_t + IV_t</p>
-<p>Noise traders arrive randomly according to a centered Gaussian distribution N(0,m). There are I_t information arrivals during day t. Each contains a public signal v_i and a private signal s_{i,j}. Informed traders and the market maker disagree on signal precision and market composition.</p>
-<p class="math-line">ΔP*_{i,j} = P*_{i,j} - P*_{i-1,j} = v_i + s_{i,j}</p>
-<p>with v_i ~ N(0,σ_v²), s_{i,j} ~ N(0,σ_s²), independent. Trader j’s bet is:</p>
-<p class="math-line">B_{i,j} = α(P*_{i,j} - P_i)</p>
+<p class="math-line"><i>V</i><sub><i>t</i></sub> = <i>NV</i><sub><i>t</i></sub> + <i>IV</i><sub><i>t</i></sub></p>
+<p>Noise traders arrive randomly according to a centered Gaussian distribution N(0,&thinsp;<i>m</i>). There are <i>I</i><sub><i>t</i></sub> information arrivals during day t. Each contains a public signal <i>v</i><sub><i>i</i></sub> and a private signal <i>s</i><sub><i>i</i>,&thinsp;<i>j</i></sub>. Informed traders and the market maker disagree on signal precision and market composition.</p>
+<p class="math-line">Δ<i>P</i>*<sub><i>i</i>,&thinsp;<i>j</i></sub> = <i>P</i>*<sub><i>i</i>,&thinsp;<i>j</i></sub> − <i>P</i>*<sub><i>i</i>−1,&thinsp;<i>j</i></sub> = <i>v</i><sub><i>i</i></sub> + <i>s</i><sub><i>i</i>,&thinsp;<i>j</i></sub></p>
+<p>with <i>v</i><sub><i>i</i></sub> ∼ N(0,&thinsp;σ<sub><i>v</i></sub><sup>2</sup>) and <i>s</i><sub><i>i</i>,&thinsp;<i>j</i></sub> ∼ N(0,&thinsp;σ<sub><i>s</i></sub><sup>2</sup>), independent. Trader <i>j</i>’s bet is:</p>
+<p class="math-line"><i>B</i><sub><i>i</i>,&thinsp;<i>j</i></sub> = α(<i>P</i>*<sub><i>i</i>,&thinsp;<i>j</i></sub> − <i>P</i><sub><i>i</i></sub>)</p>
 <p>A positive B denotes a purchase and a negative B a sale. Informed transaction volume between two consecutive equilibrium states is:</p>
-<p class="math-line">V_i = (1/2) Σ_j |B_{i,j}-B_{i-1,j}| = (α/2) Σ_j |ΔP*_{i,j}-ΔP_i|</p>
-<p>Market clearing implies Σ_j B_{i,j}=0, hence:</p>
-<p class="math-line">P_i = (1/J) Σ_j P*_{i,j}</p>
-<p class="math-line">ΔP_i = v_i + s̄_i</p>
-<p class="math-line">V_i = (α/2) Σ_j |s_{i,j}-s̄_i|</p>
+<p class="math-line"><i>V</i><sub><i>i</i></sub> = ½ Σ<sub><i>j</i></sub> |<i>B</i><sub><i>i</i>,&thinsp;<i>j</i></sub> − <i>B</i><sub><i>i</i>−1,&thinsp;<i>j</i></sub>| = (α/2) Σ<sub><i>j</i></sub> |Δ<i>P</i>*<sub><i>i</i>,&thinsp;<i>j</i></sub> − Δ<i>P</i><sub><i>i</i></sub>|</p>
+<p>Market clearing implies Σ<sub><i>j</i></sub> <i>B</i><sub><i>i</i>,&thinsp;<i>j</i></sub> = 0, hence:</p>
+<p class="math-line"><i>P</i><sub><i>i</i></sub> = (1/<i>J</i>) Σ<sub><i>j</i></sub> <i>P</i>*<sub><i>i</i>,&thinsp;<i>j</i></sub></p>
+<p class="math-line">Δ<i>P</i><sub><i>i</i></sub> = <i>v</i><sub><i>i</i></sub> + <i>s̄</i><sub><i>i</i></sub></p>
+<p class="math-line"><i>V</i><sub><i>i</i></sub> = (α/2) Σ<sub><i>j</i></sub> |<i>s</i><sub><i>i</i>,&thinsp;<i>j</i></sub> − <i>s̄</i><sub><i>i</i></sub>|</p>
 <p>Thus informed trading volume depends only on private signals, more precisely their absolute deviations from the mean. Its first two moments are:</p>
-<p class="math-line">μ_V = E[V_i] = (α/2) √(2(J-1)J/π) σ_s</p>
-<p class="math-line">σ_V² = V[V_i] = (α/2)² (1-2/π) Jσ_s² + o(J)</p>
+<p class="math-line">μ<sub><i>V</i></sub> = E[<i>V</i><sub><i>i</i></sub>] = (α/2)&thinsp;√(2(<i>J</i>&thinsp;−&thinsp;1)<i>J</i>/π)&thinsp;σ<sub><i>s</i></sub></p>
+<p class="math-line">σ<sub><i>V</i></sub><sup>2</sup> = V[<i>V</i><sub><i>i</i></sub>] = (α/2)<sup>2</sup>(1 − 2/π)&thinsp;<i>J</i>σ<sub><i>s</i></sub><sup>2</sup> + o(<i>J</i>)</p>
 <p>Large signal variances, i.e. poor precision, generate large trading volume. For large J, a Normal approximation is appropriate. Over a day:</p>
-<p class="math-line">IV_t = Σ_{i=1}^{I_t} V_i</p>
-<p class="math-line">IV_t | K_t ~ N(K_t μ_V, K_t σ_V²)</p>
-<p class="math-line">V_t | K_t ~ N(K_t μ_V, m + K_t σ_V²)</p>
+<p class="math-line math-tall"><i>IV</i><sub><i>t</i></sub> = <span class="math-op"><span class="math-limit"><i>I</i><sub><i>t</i></sub></span><span class="math-sign">Σ</span><span class="math-limit"><i>i</i>&thinsp;=&thinsp;1</span></span> <i>V</i><sub><i>i</i></sub></p>
+<p class="math-line"><i>IV</i><sub><i>t</i></sub> | <i>K</i><sub><i>t</i></sub> ∼ N(<i>K</i><sub><i>t</i></sub>μ<sub><i>V</i></sub>,&thinsp;<i>K</i><sub><i>t</i></sub>σ<sub><i>V</i></sub><sup>2</sup>)</p>
+<p class="math-line"><i>V</i><sub><i>t</i></sub> | <i>K</i><sub><i>t</i></sub> ∼ N(<i>K</i><sub><i>t</i></sub>μ<sub><i>V</i></sub>,&thinsp;<i>m</i> + <i>K</i><sub><i>t</i></sub>σ<sub><i>V</i></sub><sup>2</sup>)</p>
 <h6 id="information-flow-strategic-interactions-">Information flow, strategic interactions and volatility</h6>
 <p>At the end of day t, returns may be expressed as:</p>
-<p class="math-line">X_t = Σ_{i=1}^{I_t} ln(P_i/P_{i-1}) = Σ_i η_i,   η_i ~ N(0,σ_η²)</p>
+<p class="math-line math-tall"><i>X</i><sub><i>t</i></sub> = <span class="math-op"><span class="math-limit"><i>I</i><sub><i>t</i></sub></span><span class="math-sign">Σ</span><span class="math-limit"><i>i</i>&thinsp;=&thinsp;1</span></span> ln(<i>P</i><sub><i>i</i></sub>/<i>P</i><sub><i>i</i>−1</sub>) = Σ<sub><i>i</i></sub> η<sub><i>i</i></sub>,&emsp;&emsp;η<sub><i>i</i></sub> ∼ N(0,&thinsp;σ<sub>η</sub><sup>2</sup>)</p>
 <p>Regret-free bid-ask prices imply that the market maker believes prices are fair and that trading reveals information. Transaction prices form a martingale. Using the benchmark day and a Central Limit Theorem generalization of Clark [1973], returns conditional on information intensity satisfy:</p>
-<p class="math-line">X_t | K_t ~ N(0, σ²K_t)</p>
-<p class="math-line">X_t | K_t ~ N(0,K_t)</p>
-<p class="math-line">X_t = K_t^{1/2} Z_t,   Z_t ~ N(0,1)</p>
+<p class="math-line"><i>X</i><sub><i>t</i></sub> | <i>K</i><sub><i>t</i></sub> ∼ N(0,&thinsp;σ<sup>2</sup><i>K</i><sub><i>t</i></sub>)</p>
+<p class="math-line"><i>X</i><sub><i>t</i></sub> | <i>K</i><sub><i>t</i></sub> ∼ N(0,&thinsp;<i>K</i><sub><i>t</i></sub>)</p>
+<p class="math-line"><i>X</i><sub><i>t</i></sub> = <i>K</i><sub><i>t</i></sub><sup>1/2</sup>&thinsp;<i>Z</i><sub><i>t</i></sub>,&emsp;&emsp;<i>Z</i><sub><i>t</i></sub> ∼ N(0,&thinsp;1)</p>
 <p>The same mixing variable drives volume and returns:</p>
-<p class="math-line">{ X_t|K_t ~ N(0,K_t) ;   V_t|K_t ~ N(μ_V K_t, m + σ_V² K_t) }</p>
+<p class="math-line"><span class="math-system"><span class="math-brace" aria-hidden="true">{</span><span class="math-cases"><span><i>X</i><sub><i>t</i></sub> | <i>K</i><sub><i>t</i></sub> ∼ N(0,&thinsp;<i>K</i><sub><i>t</i></sub>)</span><span><i>V</i><sub><i>t</i></sub> | <i>K</i><sub><i>t</i></sub> ∼ N(μ<sub><i>V</i></sub><i>K</i><sub><i>t</i></sub>,&thinsp;<i>m</i> + σ<sub><i>V</i></sub><sup>2</sup><i>K</i><sub><i>t</i></sub>)</span></span></span></p>
 <p>Information flow may therefore be interpreted as a genuine latent stochastic volatility process governing both returns and volume. Multi-component specifications produce hyperbolic autocorrelation decay and long memory.</p>
 <h4 id="ch-1-4-stochastic-volatility-trading-volume">1.4 Stochastic volatility, trading volume and long memory</h4>
 <h5 id="ch-1-4-1-long-memory-and-multiple-component">1.4.1 Long memory and multiple components information arrivals</h5>
 <p>Andersen and Bollerslev [1997] extend the lognormal stochastic volatility model of Andersen [1994] to a multi-component specification, distinguishing shocks from liquidity to business-cycle horizons. Bollerslev and Jubinski [1999] model the long-run information-arrival component as fractionally integrated. Lobato and Velasco [2000] test equality of fractional differencing parameters for volatility and volume and cannot reject equal hyperbolic decay rates. Multiple short- and long-term components can reconcile geometric short-horizon decay with hyperbolic aggregate decay independent of sampling frequency.</p>
 <h5 id="ch-1-4-2-evidence-of-long-memory-in-volatil">1.4.2 Evidence of long memory in volatility and volume</h5>
-<p class="math-line">X_t = K_t^{1/2} Z_t</p>
-<p>If v_{j,t} captures N distinct information-arrival processes, the Exponential SARV model is:</p>
-<p class="math-line">v_{j,t} = α_j v_{j,t-1} + ε_t</p>
-<p>with v_{j,t}=ln(K_{j,t})-E[ln(K_{j,t})], 0≤α_j≤1. The aggregate latent volatility autocorrelation decays as:</p>
-<p class="math-line">ρ(v_t,j) ≈ L₁(j) j^{2d-1}</p>
+<p class="math-line"><i>X</i><sub><i>t</i></sub> = <i>K</i><sub><i>t</i></sub><sup>1/2</sup>&thinsp;<i>Z</i><sub><i>t</i></sub></p>
+<p>If <i>v</i><sub><i>j</i>,&thinsp;<i>t</i></sub> captures <i>N</i> distinct information-arrival processes, the Exponential SARV model is:</p>
+<p class="math-line"><i>v</i><sub><i>j</i>,&thinsp;<i>t</i></sub> = α<sub><i>j</i></sub>&thinsp;<i>v</i><sub><i>j</i>,&thinsp;<i>t</i>−1</sub> + ε<sub><i>t</i></sub></p>
+<p>with <i>v</i><sub><i>j</i>,&thinsp;<i>t</i></sub> = ln(<i>K</i><sub><i>j</i>,&thinsp;<i>t</i></sub>) − E[ln(<i>K</i><sub><i>j</i>,&thinsp;<i>t</i></sub>)] and 0 ≤ α<sub><i>j</i></sub> ≤ 1. The aggregate latent volatility autocorrelation decays as:</p>
+<p class="math-line">ρ(<i>v</i><sub><i>t</i></sub>,&thinsp;<i>j</i>) ≈ <i>L</i><sub>1</sub>(<i>j</i>)&thinsp;<i>j</i><sup>2<i>d</i>−1</sup></p>
 <p>and trading volume similarly:</p>
-<p class="math-line">ρ(V_t,j) ≈ L₂(j) j^{2d-1}</p>
+<p class="math-line">ρ(<i>V</i><sub><i>t</i></sub>,&thinsp;<i>j</i>) ≈ <i>L</i><sub>2</sub>(<i>j</i>)&thinsp;<i>j</i><sup>2<i>d</i>−1</sup></p>
 <p>Volatility and trading volume therefore appear nearly indistinguishable at this level. However, Ding et al. [1993] show that absolute returns raised to different powers have different decay rates, while volume shows nearly the same hyperbolic decay across powers. This qualitative difference points toward multifractality.</p>
 <figure class="doc-figure"><img src="chapter/image1.png" alt="Figure 1.1. Indicative autocorrelations of volume and volatility." loading="lazy"><figcaption>Figure 1.1. Indicative autocorrelations of volume and volatility.</figcaption></figure>
 <figure class="doc-figure"><img src="chapter/image2.png" alt="Figure 1.2. Indicative cross-correlations between volume and volatility." loading="lazy"><figcaption>Figure 1.2. Indicative cross-correlations between volume and volatility.</figcaption></figure>
@@ -180,25 +180,25 @@
 <p>For weakly correlated returns with similar variance sizes, the Central Limit Theorem implies convergence of sums toward a Gaussian distribution. Financial returns, however, display slow convergence: apparent scaling persists from one-minute sampling to daily and even four-day frequencies, unlike simulated i.i.d. data with the same tail index. A plausible explanation is long-range dependence in volatility. Scale invariance is valid only over a range of frequencies before a Gaussian cross-over. Andersen et al. [2001] find heteroskedasticity significant even at monthly frequency for FX data. Different slopes for absolute-return moments motivate Extended Self-Similarity and multiplicative cascade modeling.</p>
 <h5 id="ch-1-4-4-multiscaling-towards-a-stochastic-">1.4.4 Multiscaling: towards a stochastic cascade model of volatility</h5>
 <h6 id="scaling-law-behavior-of-the-moments">Scaling law behavior of the moments</h6>
-<p class="math-line">ρ(|X_t|^q,j) ≈ j^{2d-1}</p>
+<p class="math-line">ρ(|<i>X</i><sub><i>t</i></sub>|<sup><i>q</i></sup>,&thinsp;<i>j</i>) ≈ <i>j</i><sup>2<i>d</i>−1</sup></p>
 <p>Ding, Engle and Granger [1993] show that while hyperbolic decay holds for different powers, decay rates are not identical. For q from 0.25 to 2, d reaches a maximum around q=0.75 or 1. Temporally aggregated absolute returns exhibit hyperbolic autocorrelation decay across sampling frequencies. A self-similar process is generated by the same probability law at all scales; strict self-similarity requires the same scaling coefficient across absolute moments, while Extended Self-Similarity allows different values.</p>
 <h6 id="quantifying-intermittency-the-multiscali">Quantifying intermittency: the multiscaling analysis</h6>
 <p>Mandelbrot and coauthors showed that self-similar processes such as fractional Brownian motion exhibit the same degree of detail at regular sampling frequencies. The local Hölder exponent h(t) generalizes the Hurst exponent and characterizes local regularity. A singularity spectrum D(h) gives the fractal dimension associated with sets of points sharing a Hölder exponent. Structure-function exponents ζ(q) are related to D(h) by a Legendre transformation.</p>
-<p class="math-line">|P_t-P_{t-k}| = |X_t^k| ≈ (k/c)^{h(t)}</p>
-<p class="math-line">D(h) = dim ω_k(h)</p>
-<p class="math-line">ζ(q)=min_h(qh-D(h)),    D(h)=min_q(qh-ζ(q))</p>
+<p class="math-line">|<i>P</i><sub><i>t</i></sub> − <i>P</i><sub><i>t</i>−<i>k</i></sub>| = |<i>X</i><sub><i>t</i></sub><sup><i>k</i></sup>| ≈ (<i>k</i>/<i>c</i>)<sup><i>h</i>(<i>t</i>)</sup></p>
+<p class="math-line"><i>D</i>(<i>h</i>) = dim ω<sub><i>k</i></sub>(<i>h</i>)</p>
+<p class="math-line">ζ(<i>q</i>) = min<sub><i>h</i></sub>(<i>q</i><i>h</i> − <i>D</i>(<i>h</i>)),&emsp;&emsp;<i>D</i>(<i>h</i>) = min<sub><i>q</i></sub>(<i>q</i><i>h</i> − ζ(<i>q</i>))</p>
 <p>This relation is the multifractal formalism. Multiscaling analysis studies sample absolute moments through structure functions:</p>
-<p class="math-line">E[|P_t-P_{t-k}|^q] = E[|X_t^k|^q] ≈ c(q)(k/T)^{qH}</p>
+<p class="math-line">E[|<i>P</i><sub><i>t</i></sub> − <i>P</i><sub><i>t</i>−<i>k</i></sub>|<sup><i>q</i></sup>] = E[|<i>X</i><sub><i>t</i></sub><sup><i>k</i></sup>|<sup><i>q</i></sup>] ≈ <i>c</i>(<i>q</i>)(<i>k</i>/<i>T</i>)<sup><i>q</i><i>H</i></sup></p>
 <p>For strict self-similarity the scale exponent is linear in q. In a multifractal process:</p>
-<p class="math-line">E[|P_t-P_{t-k}|^q] ≈ c(q)(k/T)^{ζ(q)}</p>
+<p class="math-line">E[|<i>P</i><sub><i>t</i></sub> − <i>P</i><sub><i>t</i>−<i>k</i></sub>|<sup><i>q</i></sup>] ≈ <i>c</i>(<i>q</i>)(<i>k</i>/<i>T</i>)<sup>ζ(<i>q</i>)</sup></p>
 <p>where ζ(q) is nonlinear and concave. Hölder’s inequality yields ζ(q) ≥ ω₁ζ(q₁)+ω₂ζ(q₂), demonstrating concavity. In turbulence, intermittency denotes alternating stability and instability; in finance this is analogous to volatility clustering.</p>
 <h5 id="ch-1-4-5-from-stochastic-cascade-to-stochas">1.4.5 From stochastic cascade to stochastic volatility</h5>
 <p>Kolmogorov [1941] first exploited cascade schemes for intermittent turbulent flows. The cascade paradigm provides a framework for multiscaling in financial data and formalizes HARCH in a more rigorous hierarchical framework. Large-scale volatility can Granger-cause short-scale volatility, suggesting a hierarchy across scales. The binomial cascade illustrates the multiplicative construction: an interval is repeatedly split and probability mass multiplied by fractions p and 1-p. Generalizations use b cells or random multipliers, producing random multifractal measures.</p>
 <h6 id="stochastic-cascade-volatility-modeling">Stochastic cascade volatility modeling</h6>
-<p>Apply the multiplicative cascade to volatility. At each instant, fluctuations at large scales are related to fine-scale fluctuations through random multipliers W_k:</p>
-<p class="math-line">σ_k = W_k σ_{k-1} = W_k W_{k-1} … W_0 σ_0</p>
-<p class="math-line">σ_k = σ_0 ∏_{i=0}^k W_i</p>
-<p>σ_0 is homoscedastic volatility at the lowest frequency. Densifying the discrete cascade leads to a continuous, log-infinitely-divisible model. Eligible generators include log-Normal, log-Levy, log-Gamma and log-Poisson families. Financial applications include Muzy et al. [2001], Lux [2001], Breymann et al. [2000], Calvet et al. [1997], Schmitt et al. [1999, 2000], and Turiel and Perez-Vicente [2002].</p>
+<p>Apply the multiplicative cascade to volatility. At each instant, fluctuations at large scales are related to fine-scale fluctuations through random multipliers <i>W</i><sub><i>k</i></sub>:</p>
+<p class="math-line">σ<sub><i>k</i></sub> = <i>W</i><sub><i>k</i></sub>&thinsp;σ<sub><i>k</i>−1</sub> = <i>W</i><sub><i>k</i></sub>&thinsp;<i>W</i><sub><i>k</i>−1</sub> … <i>W</i><sub>0</sub>&thinsp;σ<sub>0</sub></p>
+<p class="math-line math-tall">σ<sub><i>k</i></sub> = σ<sub>0</sub> <span class="math-op"><span class="math-limit"><i>k</i></span><span class="math-sign">∏</span><span class="math-limit"><i>i</i>&thinsp;=&thinsp;0</span></span> <i>W</i><sub><i>i</i></sub></p>
+<p>σ<sub>0</sub> is homoscedastic volatility at the lowest frequency. Densifying the discrete cascade leads to a continuous, log-infinitely-divisible model. Eligible generators include log-Normal, log-Levy, log-Gamma and log-Poisson families. Financial applications include Muzy et al. [2001], Lux [2001], Breymann et al. [2000], Calvet et al. [1997], Schmitt et al. [1999, 2000], and Turiel and Perez-Vicente [2002].</p>
 <h4 id="ch-1-5-empirical-evidence">1.5 Empirical evidence</h4>
 <p>In this section, we test the relevance of the MDH model developed above with its extension to volatility modeling.</p>
 <h5 id="ch-1-5-1-data-description">1.5.1 Data description</h5>
@@ -208,18 +208,18 @@
 <h5 id="ch-1-5-2-fractional-integration-and-semipar">1.5.2 Fractional integration and semiparametric estimation of long memory in absolute returns and trading volume</h5>
 <figure class="doc-table"><div class="table-scroll"><table><thead><tr><th scope="col"></th><th scope="col">Augmented Dickey-Fuller</th><th scope="col">Phillips-Perron</th><th scope="col">KPSS</th></tr></thead><tbody><tr><td>Log-price (level)</td><td>-1.5869</td><td>-0.1810</td><td>1.680*, 0.379*</td></tr><tr><td>Log-price (difference)</td><td>-47.6011*</td><td>-47.5493*</td><td>0.091, 0.088</td></tr><tr><td>Volatility (abs returns)</td><td>-8.3049*</td><td>-29.6952*</td><td>3.206*, 0.344*</td></tr><tr><td>Volume (log)</td><td>-7.4934*</td><td>-46.0342*</td><td>3.534*, 0.368*</td></tr></tbody></table></div><figcaption>Table 1.2: Unit root tests and stationarity test</figcaption></figure>
 <p>Correlograms and Box-Pierce statistics are highly significant at distant lags. The MDH long-run proposition is:</p>
-<p class="math-line">ρ(|R_t|,j) ≈ L₁(j)j^{2d-1},    ρ(V_t,j) ≈ L₂(j)j^{2d-1},    0&lt;d&lt;1/2</p>
+<p class="math-line">ρ(|<i>R</i><sub><i>t</i></sub>|,&thinsp;<i>j</i>) ≈ <i>L</i><sub>1</sub>(<i>j</i>)&thinsp;<i>j</i><sup>2<i>d</i>−1</sup>,&emsp;&emsp;ρ(<i>V</i><sub><i>t</i></sub>,&thinsp;<i>j</i>) ≈ <i>L</i><sub>2</sub>(<i>j</i>)&thinsp;<i>j</i><sup>2<i>d</i>−1</sup>,&emsp;&emsp;0 &lt; <i>d</i> &lt; ½</p>
 <p>Cross-correlations similarly decay hyperbolically, suggesting subordination to a common latent information-arrival process rather than direct causality.</p>
 <p>The Geweke-Porter-Hudak [1983] estimator estimates d in the frequency domain. For long memory, the spectrum has a singularity at zero frequency:</p>
-<p class="math-line">f(ω) = (2π)^{-1} Σ_j γ_j cos(jω)</p>
-<p class="math-line">f(ω) ~ L(1/ω) ω^{-2d},    ω→0⁺</p>
-<p>The semiparametric approach imposes behavior only near the origin. With (1-L)^d |R_t| = η_t, the spectral density satisfies:</p>
-<p class="math-line">f(ω)=|1-e^{-iω}|^{-2d} f_η(ω)</p>
-<p class="math-line">ln f(ω) ≈ ln f_η(0) - 2d ln(ω)</p>
+<p class="math-line"><i>f</i>(ω) = (2π)<sup>−1</sup> Σ<sub><i>j</i></sub> γ<sub><i>j</i></sub> cos(<i>j</i>ω)</p>
+<p class="math-line"><i>f</i>(ω) ∼ <i>L</i>(1/ω)&thinsp;ω<sup>−2<i>d</i></sup>,&emsp;&emsp;ω → 0<sup>+</sup></p>
+<p>The semiparametric approach imposes behavior only near the origin. With (1 − <i>L</i>)<sup><i>d</i></sup> |<i>R</i><sub><i>t</i></sub>| = η<sub><i>t</i></sub>, the spectral density satisfies:</p>
+<p class="math-line"><i>f</i>(ω) = |1 − e<sup>−<i>i</i>ω</sup>|<sup>−2<i>d</i></sup>&thinsp;<i>f</i><sub>η</sub>(ω)</p>
+<p class="math-line">ln <i>f</i>(ω) ≈ ln <i>f</i><sub>η</sub>(0) − 2<i>d</i> ln ω</p>
 <p>Because the original series are non-Gaussian, a less restrictive semiparametric estimator based on the ratio of periodograms at two near-zero frequencies is used (Robinson [1994], Andersen and Bollerslev [1998]):</p>
-<p class="math-line">d̂_AP = 1/2 - ln(F(qω)/F(ω)) / (2 ln q)</p>
+<p class="math-line"><i>d̂</i><sub>AP</sub> = ½ − ln(<i>F</i>(<i>q</i>ω) / <i>F</i>(ω)) / (2 ln <i>q</i>)</p>
 <figure class="doc-table"><div class="table-scroll"><table><thead><tr><th scope="col"></th><th scope="col">d̂_AP</th></tr></thead><tbody><tr><td>Volatility</td><td>0.4327</td></tr><tr><td>Volume</td><td>0.4718</td></tr></tbody></table></div><figcaption>Table 1.3: Hyperbolic rates of decay for volatility and volume</figcaption></figure>
-<p>Both estimates lie between 0 and 1/2: volatility and volume are highly persistent but covariance stationary, with shocks dissipating at a slow hyperbolic rate. Applying a (1-L)^d filter removes the long-run dependence.</p>
+<p>Both estimates lie between 0 and 1/2: volatility and volume are highly persistent but covariance stationary, with shocks dissipating at a slow hyperbolic rate. Applying a (1 − <i>L</i>)<sup><i>d</i></sup> filter removes the long-run dependence.</p>
 <figure class="doc-figure"><img src="chapter/image3.png" alt="Figure 1.3. Indicative autocorrelation after fractional filtering." loading="lazy"><figcaption>Figure 1.3. Indicative autocorrelation after fractional filtering.</figcaption></figure>
 <h5 id="ch-1-5-3-long-memory-for-absolute-returns-a">1.5.3 Long memory for absolute returns at various powers</h5>
 <figure class="doc-table"><div class="table-scroll"><table><thead><tr><th scope="col">Powers</th><th scope="col">Volatility</th><th scope="col">Volume</th></tr></thead><tbody><tr><td>0.25</td><td>0.4442</td><td>0.4215</td></tr><tr><td>0.50</td><td>0.4469</td><td>0.4250</td></tr><tr><td>0.75</td><td>0.4426</td><td>0.4272</td></tr><tr><td>1.00</td><td>0.4327</td><td>0.4284</td></tr><tr><td>1.25</td><td>0.4146</td><td>0.4288</td></tr><tr><td>1.50</td><td>0.3828</td><td>0.4284</td></tr><tr><td>1.75</td><td>0.3305</td><td>0.4272</td></tr><tr><td>2.00</td><td>0.2565</td><td>0.4251</td></tr><tr><td>2.25</td><td>0.1737</td><td>0.4221</td></tr><tr><td>2.50</td><td>0.1035</td><td>0.4181</td></tr><tr><td>2.75</td><td>0.0567</td><td>0.4131</td></tr><tr><td>3.00</td><td>0.0301</td><td>0.4069</td></tr><tr><td>3.25</td><td>0.0162</td><td>0.3996</td></tr><tr><td>3.50</td><td>0.0090</td><td>0.3908</td></tr><tr><td>3.75</td><td>0.0054</td><td>0.3806</td></tr><tr><td>4.00</td><td>0.0035</td><td>0.3688</td></tr></tbody></table></div><figcaption>Table 1.4: Fractional differencing parameter d̂ for moments of different powers</figcaption></figure>
@@ -230,9 +230,9 @@
 <figure class="doc-figure"><img src="chapter/image2.png" alt="Figure 1.4. Indicative cross-correlations at different horizons (coarse-to-fine vs fine-to-coarse)." loading="lazy"><figcaption>Figure 1.4. Indicative cross-correlations at different horizons (coarse-to-fine vs fine-to-coarse).</figcaption></figure>
 <h5 id="ch-1-5-5-scaling-and-multiscaling-analysis">1.5.5 Scaling and multiscaling analysis</h5>
 <p>Multifractality extends self-similarity to allow different scaling relations for different structure functions. The main application is to characterize absolute-return moments at different powers:</p>
-<p class="math-line">E[|P_t-P_{t-k}|^q] = E[|R_t^k|^q] ≈ c(q)(k/T)^{ζ(q)}</p>
+<p class="math-line">E[|<i>P</i><sub><i>t</i></sub> − <i>P</i><sub><i>t</i>−<i>k</i></sub>|<sup><i>q</i></sup>] = E[|<i>R</i><sub><i>t</i></sub><sup><i>k</i></sup>|<sup><i>q</i></sup>] ≈ <i>c</i>(<i>q</i>)(<i>k</i>/<i>T</i>)<sup>ζ(<i>q</i>)</sup></p>
 <p>If the process is scale-invariant, ζ(q)=qH. With multiscaling, ζ(q) is nonlinear and concave. It is estimated by linear regressions in log-log form for q from 0 to 4 by increments of 0.25:</p>
-<p class="math-line">log E[|P_t-P_{t-k}|^q] ≈ log c(q) + ζ(q) log(k/T)</p>
+<p class="math-line">log E[|<i>P</i><sub><i>t</i></sub> − <i>P</i><sub><i>t</i>−<i>k</i></sub>|<sup><i>q</i></sup>] ≈ log <i>c</i>(<i>q</i>) + ζ(<i>q</i>) log(<i>k</i>/<i>T</i>)</p>
 <p>The resulting structure-function exponents are not linear but concave. Scaling relations therefore depart from the linear benchmark of strict self-similarity. Similar results are reported for numerous financial series. Curvature depends on intermittency; exchange rates during the European Monetary System show stronger curvature around realignment jumps. Dacorogna et al. [2001] discuss scaling breakdown at very high frequencies, plausibly related to microstructure effects such as seasonality, bid-ask bounce and inventory management. Multiscaling has implications for risk management and market timing.</p>
 <p>LeBaron [2001] shows that a three-component stochastic-volatility model can exhibit apparent multiscaling, but the complexity of stochastic-volatility estimation opens the door to cascade models. For continuous cascades, the singularity spectrum has a known closed form. Lux [2001a] provides an early econometric estimation of a multifractal model using GMM.</p>
 <figure class="doc-figure"><img src="chapter/image4.png" alt="Figure 1.5. Indicative scaling of structure functions in a log-log plot." loading="lazy"><figcaption>Figure 1.5. Indicative scaling of structure functions in a log-log plot.</figcaption></figure>

@@ -29,7 +29,52 @@
 .doc-body h6{margin:18px 0 6px;font-size:.9rem;color:#475569;letter-spacing:.01em;scroll-margin-top:16px}
 .doc-kicker{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:#64748b;margin:0 0 4px}
 .doc-note{font-style:italic;color:#64748b;font-size:.875rem}
-.doc-body .math-line{margin:14px 0;text-align:center}
+/* Displayed equations. The chapter's were set in the page's interface face, in the
+   ASCII the conversion produced — X_t, ^{1/2}, _{i,j} — which is source notation, not
+   mathematics. They are now typeset: a serif face with real italics for the variables,
+   true sub- and superscripts, minus signs rather than hyphens. No formula library; the
+   page still loads nothing at run time, and 40 equations of this size do not need one.
+
+   Operators, digits and function names stay upright and only the letters that stand for
+   quantities are italic, which is the convention the printed chapter follows. Greek is
+   left upright: Georgia has no italic Greek, font-synthesis is off, and a slanted sigma
+   from a fallback face beside an upright one reads as two different symbols. */
+.doc-body .math-line{
+  margin:20px 0;
+  text-align:center;
+  font-family:Georgia,"Iowan Old Style","Times New Roman",serif;
+  font-size:1.16rem;
+  line-height:1.5;
+  color:var(--ink);
+  overflow-x:auto;        /* long lines scroll in place rather than widening the page */
+  overflow-y:hidden;
+  padding-bottom:2px;
+  scrollbar-width:thin;
+}
+.doc-body .math-line i{font-style:italic}
+.doc-body .math-line sub,.doc-body .math-line sup{font-size:.68em;line-height:0}
+/* A subscript inside a superscript — the upper limit of a sum — would otherwise land at
+   half the body size. */
+.doc-body .math-line sup sub,.doc-body .math-line sub sub{font-size:.85em}
+
+/* A sum or product carrying both limits sets them above and below the sign, as the
+   chapter prints them; a bare Σ_j keeps its single subscript inline. */
+.math-op{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .12em;line-height:1}
+.math-op .math-sign{font-size:1.45em;line-height:.9}
+.math-op .math-limit{font-size:.52em;line-height:1.25;white-space:nowrap}
+/* overflow-x:auto forces the other axis to clip, so the line must make room. */
+.doc-body .math-line.math-tall{line-height:2.7}
+.doc-body .math-line .math-op sub{font-size:.8em}
+
+/* The one system in the chapter: two conditional laws under a single brace. */
+.math-system{display:inline-flex;align-items:center;gap:.4em;text-align:left}
+.math-brace{font-size:2.9em;font-weight:400;line-height:.86;color:#8ea2bd}
+.math-cases{display:inline-flex;flex-direction:column;gap:.3em}
+
+@media(max-width:640px){
+  .doc-body .math-line{font-size:1.02rem;text-align:left;margin:16px 0}
+  .math-brace{font-size:2.4em}
+}
 .doc-figure,.doc-table{margin:20px 0;max-width:100%}
 .doc-figure img{display:block;max-width:100%;height:auto;margin:0 auto;border:1px solid var(--border);border-radius:5px;background:#fff}
 .doc-figure figcaption,.doc-table figcaption{margin-top:8px;font-size:.8125rem;font-style:italic;color:#64748b;text-align:center}
