@@ -13,7 +13,7 @@ Measured market data is not here. Chapter 3 runs these same estimators over ten 
 | `dist/index.html` | Page structure, the chapter's argument rail, controls and model assumptions |
 | `dist/style.css` | Responsive layout and visual design |
 | `dist/app.mjs` | Interface state, chart rendering and interaction handlers |
-| `dist/model.mjs` | Seeded cascade simulation, statistics, autocorrelations, scaling, and Table 1.4 as reported |
+| `dist/model.mjs` | Seeded cascade simulation, its per-level multipliers, statistics, autocorrelations, scaling, and Table 1.4 as reported |
 | `dist/chapter/` | The chapter's figures, as supplied |
 | `verify.mjs` | Numerical checks and original-table transcription checks |
 | `vercel.json` | Static deployment configuration |
@@ -75,6 +75,19 @@ The supplied `vercel.json` sets the framework, build, installation and output op
 
 Check the new deployment's access settings before sharing it: access restrictions on the previous host are not part of these application files. Deployment to your Vercel account has not been performed or tested in this handover.
 
+## The views
+
+`Information flow` states the chapter's premise; `Returns`, `Memory` and `Scaling`
+follow its consequences in the chapter's own order; `Cascade` shows the generator they
+come from, one level per row with the horizon each level acts on, and lets the product
+be stopped partway down; `Original chapter` reproduces the chapter and its reported
+Table 1.4.
+
+`Cascade` draws the tree the simulation already walks. `simulate` keeps the per-level
+multipliers it draws rather than discarding them into the branch sum, and `verify.mjs`
+asserts they are the exact factorization of the volatility used elsewhere, so the view
+cannot drift from the numbers the other views report.
+
 ## Research fidelity
 
 The simulator illustrates the chapter's finite multiplicative-cascade framework. Its implementation choices are documented on the page. It is not calibrated to the original Alcatel dataset. The original Table 1.4 is a separate historical transcription.
@@ -83,4 +96,4 @@ Keep that distinction when extending the lab. Measuring a modern series is a new
 
 ## Validation
 
-`node verify.mjs` checks reproducibility, the exact Gaussian limit at zero intermittency, aggregation, Gaussian moments and scaling, parameter boundaries and the historical-table entries. No browser QA was performed.
+`node verify.mjs` checks reproducibility, the exact Gaussian limit at zero intermittency, aggregation, Gaussian moments and scaling, parameter boundaries, the cascade's level factorization and partial products, and the historical-table entries. Browser QA covers the cascade view's controls and layout only; see `docs/RESEARCH_NOTES.md`.

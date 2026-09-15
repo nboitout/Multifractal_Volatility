@@ -73,8 +73,17 @@ Measured market series are not part of this laboratory. They are Chapter 3's sub
 The views follow the chapter's argument rather than the order in which results are
 easiest to plot. Information flow states the Mixture of Distributions premise first;
 Returns, Memory and Scaling then present its consequences in the chapter's sequence;
-Original chapter carries the evidence, as reported. A numbered rail names the four
-claims and marks which one each view serves.
+Cascade turns back to the generator those consequences come from; Original chapter
+carries the evidence, as reported. A numbered rail names the four claims and marks
+which one each view serves.
+
+Cascade sits after Scaling rather than beside Information flow because it belongs to
+the fourth claim, not the first: the reader meets the construction once multiscaling
+has given them a reason to want it. It draws the tree the simulation already walks —
+`simulate` now keeps the per-level multipliers it used to fold into the branch sum and
+discard — so the view shows the factors the other views' numbers were built from, not
+a second simulation. Levels applied stops the product partway down, which is the only
+control in the lab that isolates what an individual level contributes.
 
 The Information flow view plots the benchmark series that `simulate` has always
 returned and the interface never displayed. Because the Gaussian shocks are shared
@@ -91,6 +100,7 @@ makes the mixture visible rather than merely asserted.
 - Histograms cover full observed ranges. The reference Gaussian uses sample mean and population variance. Excess kurtosis and skewness use uncorrected central sample moments.
 - Autocorrelations use sample centering and the full centered sum of squares as the denominator.
 - Coarse/fine dependence: all sliding 5-observation windows; coarse is absolute summed return, fine is mean absolute return. Correlation at lag k pairs coarse_t with fine_(t+k), using full-series means and overlapping pairs. No significance or causal claims.
+- Cascade view: level j holds 2^j multipliers, each covering 2^(J-j) observations; the tree is drawn on a canvas because at J = 13 it is 16,382 cells. Cell colour is a diverging ramp on log W over plus or minus two standard deviations, centred at W = 1. Because log W has mean -v, the field is not balanced about that midpoint; this is stated on the page rather than corrected away. Row horizons are glossed at 252 trading days a year for reading only. The volatility path and the view's statistics are recomputed from the levels, so the tree is still shown when the return process is the Gaussian benchmark, which draws these multipliers and discards them; the page says so where that applies.
 - Structure functions: overlapping increments at powers of two up to min(64, N/16); moment orders .25..4 by .25. Ordinary least squares on log2 moments against log2 horizon. A finite stochastic-cascade realization is not a proof of asymptotic multifractality.
 
 ## Source
@@ -99,4 +109,4 @@ makes the mixture visible rather than merely asserted.
 
 ## Validation scope
 
-Numerical invariants, benchmark moments and scaling, boundary parameters, original-table entries, JavaScript syntax, HTML associations and local assets were checked. Browser interaction and visual QA were not requested and were not run. Optional WebMCP registration and execution validation was unavailable because no permitted supported browser context was available; the tools are feature-detected and use the same parameter validation as the controls.
+Numerical invariants, benchmark moments and scaling, boundary parameters, original-table entries, JavaScript syntax, HTML associations and local assets were checked. `verify.mjs` also asserts that the retained level multipliers are exactly the factorization of the volatility the simulation used, that the whole tree reproduces `simulation.sigma`, that no levels applied returns the constant-volatility benchmark, and that zero intermittency draws no multiplier at any level. The cascade view was driven in a headless browser: tab selection, the levels-applied control, the depth control restoring the whole tree, the benchmark note, pointer readout and a 390px layout, with no console errors. Visual QA beyond those screenshots was not run. Optional WebMCP registration and execution validation was unavailable because no permitted supported browser context was available; the tools are feature-detected and use the same parameter validation as the controls.

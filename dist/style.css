@@ -73,7 +73,7 @@
    selected pill instead of an underline, which reads as a control rather than a
    label; it says what it is for; and it sticks to the top of the viewport, so that
    wherever the reader has scrolled to inside a two-thousand-pixel laboratory, the way
-   to the other four views is in front of them. */
+   to the other five views is in front of them. */
 
 .viewbar {
   position: sticky;
@@ -105,7 +105,7 @@
 }
 
 /* Pills are wider than the bare labels were, and the workspace is only about 690px
-   once the controls take their column, so the five of them stop fitting well before
+   once the controls take their column, so the six of them stop fitting well before
    the phone breakpoint the strip used to start scrolling at. It scrolls on its own
    at any width instead, which needs min-width:0 — without it the flex item refuses
    to shrink below its content and pushes the whole page sideways. */
@@ -144,7 +144,7 @@
 
 @media (max-width: 1100px) {
   /* The instruction is the first thing to go: from here down the controls column and
-     the five views are both squeezed, and the label costs the tabs about 140px they
+     the six views are both squeezed, and the label costs the tabs about 140px they
      need more. It is taken out of the flow rather than removed, because it is also
      the tablist's accessible name. */
   .viewbar-label {
@@ -155,7 +155,7 @@
   }
   .viewbar { padding: 0 8px; gap: 0; }
   /* Tighter pills too: at 880px the workspace is at its narrowest, and these twenty
-     pixels are the difference between the five views fitting and the strip having to
+     pixels are the difference between the six views fitting and the strip having to
      scroll. Below the phone breakpoint it scrolls anyway, as it always has. */
   .viewbar .tabs { min-height: 50px; gap: 6px; }
   .viewbar .tabs button { padding: 8px 10px; }
@@ -166,3 +166,58 @@
 .intro-cta a { font-weight: 650; text-decoration: none; border-bottom: 2px solid #c3d6ff; padding-bottom: 2px; }
 .intro-cta a:hover { border-bottom-color: var(--blue); }
 .intro-cta-note { font-size: .8125rem; color: var(--muted); }
+
+/* The cascade view.
+   The tree is drawn on a canvas rather than in the SVG chart() helper the other views
+   use: at depth 13 it is sixteen thousand cells, and the helper draws one path per
+   series. Everything around the canvas — row labels, ticks, the branch panel — stays
+   in the document, so it takes the page's type and colours and can be read out. */
+.cascade-layout { display: grid; grid-template-columns: minmax(0, 1fr) 248px; gap: 20px; align-items: start; }
+.ladder { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 0 10px; min-width: 0; }
+.ladder-span { grid-column: 1 / -1; }
+.ladder-rows { display: flex; flex-direction: column; }
+.ladder-row {
+  display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+  font-size: .6875rem; line-height: 1.1; white-space: nowrap;
+  color: var(--muted); font-variant-numeric: tabular-nums;
+}
+.ladder-row .ladder-obs { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-weight: 650; color: var(--ink); }
+.ladder-row.spent { opacity: .38; }
+.ladder-plot { position: relative; min-width: 0; }
+.ladder-plot canvas { display: block; width: 100%; max-width: 100%; }
+.ladder-cross { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--ink); opacity: .55; pointer-events: none; transform: translateX(-.5px); }
+.ladder-ticks { display: flex; justify-content: space-between; font-size: .6875rem; color: var(--muted); font-variant-numeric: tabular-nums; margin-top: 6px; }
+.ladder-axis-title { font-size: .75rem; color: var(--muted); text-align: center; margin-top: 2px; }
+.ladder-side { font-size: .75rem; color: var(--muted); text-align: right; padding-top: 2px; }
+
+.ramp-legend { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; font-size: .8125rem; color: var(--muted); margin: 12px 0 16px; }
+.ramp-legend .ramp { height: 9px; width: 168px; border-radius: 2px; flex: none; }
+.ramp-legend .ramp-values { white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* The branch: one instant of the tree, multiplied out in the order the levels apply. */
+.branch { background: #fafbfd; border: 1px solid var(--border); border-radius: 9px; padding: 15px; }
+.branch-instant { font-size: .75rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.branch-sigma { font-size: 1.5rem; font-weight: 650; letter-spacing: -.035em; font-variant-numeric: tabular-nums; line-height: 1.3; }
+.branch-rank { font-size: .75rem; color: var(--muted); margin-bottom: 11px; }
+.branch-list { display: flex; flex-direction: column; gap: 3px; }
+.branch-row { display: grid; grid-template-columns: 42px minmax(0, 1fr) 48px; align-items: center; gap: 7px; font-size: .6875rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.branch-row.spent { opacity: .34; }
+.branch-track { position: relative; height: 11px; background: #eaeff6; border-radius: 2px; overflow: hidden; }
+.branch-track:after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: #cfd9e6; }
+.branch-bar { position: absolute; top: 0; bottom: 0; border-radius: 2px; }
+.branch-row .branch-w { text-align: right; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; color: var(--ink); }
+.branch-foot { font-size: .6875rem; line-height: 1.55; color: var(--muted); border-top: 1px solid var(--border); margin-top: 11px; padding-top: 10px; }
+.branch-foot strong { color: var(--ink); font-weight: 650; }
+.cascade-note { font-size: .8125rem; line-height: 1.6; color: var(--muted); border-left: 2px solid #a1b7d5; padding-left: 14px; margin-bottom: 14px; }
+
+@media (max-width: 1180px) {
+  /* The branch panel needs its own width to keep the bars readable; below this the
+     workspace cannot give it one beside the tree, so it goes underneath at full width. */
+  .cascade-layout { grid-template-columns: minmax(0, 1fr); }
+  .branch-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 3px 22px; }
+}
+@media (max-width: 500px) {
+  .ladder { grid-template-columns: 78px minmax(0, 1fr); gap: 0 7px; }
+  .ladder-row { font-size: .625rem; gap: 5px; }
+  .ladder-side { font-size: .6875rem; }
+}

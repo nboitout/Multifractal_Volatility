@@ -1,6 +1,6 @@
 // Finite dyadic realization of the chapter's lognormal multiplicative cascade.
 // All simulation choices are disclosed in the page's method notes.
-export const DEFAULTS = Object.freeze({model:'cascade',lambda:0.05,depth:12,sigma:1,horizon:1,power:1,seed:2004});
+export const DEFAULTS = Object.freeze({model:'cascade',lambda:0.05,depth:12,applied:12,sigma:1,horizon:1,power:1,seed:2004});
 export function rng(seed) {
   let a=seed>>>0;
   return ()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;};
@@ -11,22 +11,37 @@ export function validateParams(input){
   for(const k of Object.keys(input))if(!(k in DEFAULTS))throw Error('Unknown parameter: '+k);
   const p={...DEFAULTS,...input};
   if(!['cascade','gaussian'].includes(p.model))throw Error('Choose cascade or gaussian.');
-  for(const [k,min,max] of [['lambda',0,.12],['sigma',.25,3],['depth',8,13],['horizon',1,64],['power',.25,4],['seed',0,999999]])if(typeof p[k]!=='number'||!Number.isFinite(p[k])||p[k]<min||p[k]>max)throw Error('Invalid '+k+'.');
-  for(const k of ['depth','horizon','seed'])if(!Number.isInteger(p[k]))throw Error(k+' must be an integer.');
+  for(const [k,min,max] of [['lambda',0,.12],['sigma',.25,3],['depth',8,13],['applied',0,13],['horizon',1,64],['power',.25,4],['seed',0,999999]])if(typeof p[k]!=='number'||!Number.isFinite(p[k])||p[k]<min||p[k]>max)throw Error('Invalid '+k+'.');
+  for(const k of ['depth','applied','horizon','seed'])if(!Number.isInteger(p[k]))throw Error(k+' must be an integer.');
+  // A tree cannot have more levels applied than it has. Clamping rather than throwing
+  // keeps the depth control usable: lowering depth would otherwise reject its own value.
+  p.applied=Math.min(p.applied,p.depth);
   if(![1,5,20,64].includes(p.horizon))throw Error('Choose horizon 1, 5, 20 or 64.');
   for(const [k,step] of [['lambda',.005],['sigma',.25],['power',.25]])if(Math.abs(p[k]/step-Math.round(p[k]/step))>1e-8)throw Error(k+' must use increments of '+step+'.');
   return p;
 }
+// levels[j-1] holds the 2^j log-multipliers drawn at level j, kept rather than
+// discarded so the cascade view can show which horizon each factor came from.
+// Their sum along a branch is logSigma, which verify.mjs asserts.
 export function simulate(input){
   const p=validateParams(input),n=2**p.depth,logSigma=new Float64Array(n),noise=normalGenerator(p.seed),branch=normalGenerator(p.seed^0x9e3779b9);
-  const v=p.lambda*Math.LN2;
+  const v=p.lambda*Math.LN2,levels=[];
   for(let level=1;level<=p.depth;level++){
-    const width=n/(2**level);
-    for(let start=0;start<n;start+=width){const w=-v+Math.sqrt(v)*branch();for(let t=start;t<start+width;t++)logSigma[t]+=w;}
+    const width=n/(2**level),drawn=new Float64Array(2**level);let block=0;
+    for(let start=0;start<n;start+=width){const w=-v+Math.sqrt(v)*branch();drawn[block++]=w;for(let t=start;t<start+width;t++)logSigma[t]+=w;}
+    levels.push(drawn);
   }
-  const returns=new Float64Array(n),sigma=new Float64Array(n),benchmark=new Float64Array(n);
-  for(let t=0;t<n;t++){const z=noise();sigma[t]=p.sigma*(p.model==='cascade'?Math.exp(logSigma[t]):1);returns[t]=sigma[t]*z;benchmark[t]=p.sigma*z;}
-  return {returns,sigma,benchmark,n};
+  const returns=new Float64Array(n),sigma=new Float64Array(n),benchmark=new Float64Array(n),shocks=new Float64Array(n);
+  for(let t=0;t<n;t++){const z=noise();shocks[t]=z;sigma[t]=p.sigma*(p.model==='cascade'?Math.exp(logSigma[t]):1);returns[t]=sigma[t]*z;benchmark[t]=p.sigma*z;}
+  return {returns,sigma,benchmark,shocks,levels,logSigma,n};
+}
+// Volatility built from the coarsest `applied` levels only. At applied = 0 it is the
+// constant-volatility benchmark; at applied = depth it reproduces the full cascade.
+export function partialSigma(simulation,applied,sigma0){
+  const {levels,n}=simulation,count=Math.max(0,Math.min(applied,levels.length)),out=new Float64Array(n);
+  for(let level=1;level<=count;level++){const drawn=levels[level-1],width=n/(2**level);for(let t=0;t<n;t++)out[t]+=drawn[(t/width)|0];}
+  for(let t=0;t<n;t++)out[t]=sigma0*Math.exp(out[t]);
+  return out;
 }
 export function mean(x){return x.reduce((a,b)=>a+b,0)/x.length;}
 export function stats(x){const m=mean(x);let m2=0,m3=0,m4=0;for(const v of x){const d=v-m;m2+=d*d;m3+=d*d*d;m4+=d*d*d*d;}m2/=x.length;m3/=x.length;m4/=x.length;const sd=Math.sqrt(m2);return {mean:m,sd,skew:sd?m3/sd**3:0,excess:m2?m4/m2**2-3:0,min:Math.min(...x),max:Math.max(...x),tail:sd?x.filter(v=>Math.abs(v-m)>3*sd).length/x.length:0,n:x.length};}
